@@ -11,7 +11,6 @@ var cors = require( 'cors' );
 const PORT = 3001;
 
 //Session management
-
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded( { extended: false } ) );
 app.use( cookieParser() );
@@ -29,7 +28,23 @@ app.use(
     } )
 );
 
-app.use(express.static("public"));
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded( { extended: true })  ); // Doubt, might have to remove later
+
+app.use( ( req, res, next ) => {
+    res.setHeader( 'Access-Control-Allow-Origin', 'http://localhost:3000' );
+    res.setHeader( 'Access-Control-Allow-Credentials', 'true' );
+    res.setHeader( 'Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE' );
+    res.setHeader( 'Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers' );
+    res.setHeader( 'Cache-Control', 'no-cache' );
+    next();
+});
+
+const signup = require('./modules/signup')
+
+app.use('/signup', signup)
+
+app.use( express.static( "public" ) );
 
 app.listen( PORT, () => {
     console.log( "Server listening on port: ", PORT );

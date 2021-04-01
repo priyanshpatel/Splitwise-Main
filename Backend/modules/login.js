@@ -9,10 +9,6 @@ let bcrypt = require( 'bcrypt' );
 const userSchema = require( '../models/users' );
 
 router.post('/', (req, res) => {
-    let userEmail = req.body.userEmail;
-    let userPassword = req.body.userPassword;
-    console.log(req.body.userEmail)
-    console.log(req.body.userPassword)
     userSchema.findOne( { userEmail: req.body.userEmail } ).then( doc => {
         if ( bcrypt.compareSync( req.body.userPassword, doc.userPassword ) ) {
             let payload = {

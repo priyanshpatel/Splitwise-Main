@@ -6,7 +6,7 @@ var mongoose = require( '../config/db_config' );
 var bcrypt = require( 'bcrypt' );
 const userSchema = require( '../models/users' );
 
-router.post('/', (req, res) => {
+router.post('/', ( req, res ) => {
     const userName = req.body.userName;
     const userEmail = req.body.userEmail;
     //

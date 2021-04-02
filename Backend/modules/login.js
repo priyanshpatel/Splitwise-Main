@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require( '../config/db_config' );
 const jwt = require('jsonwebtoken');
-var {secret} = require('../config/config');
+const {secret} = require('../config/config');
+let { auth, checkAuth } = require( '../config/passport' )
+auth();
 
 let bcrypt = require( 'bcrypt' );
 const userSchema = require( '../models/users' );
@@ -23,7 +25,8 @@ router.post('/', (req, res) => {
             console.log( "Login Successful", token )
             // callback( null, "Bearer " + token )
             // console.log("login successful")
-            res.status( 200 ).send( doc )
+            // res.status( 200 ).send( doc )
+            res.status( 200 ).send( "Bearer " + token )
         } else {
             console.log( "Invalid Credentials" )
             res.status( 401 ).send( "Invalid Credentials" )

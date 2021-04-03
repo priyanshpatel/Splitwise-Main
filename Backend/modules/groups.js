@@ -134,72 +134,38 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
             res.status(500).json(error)
         }
     })
+});
 
+router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req, res) => {
+    let imagePath = null;
 
-    //
-    /*const groupCountQuery = "SELECT COUNT(0) AS COUNT FROM EXPENSE_GROUPS WHERE GROUP_NAME = '" + groupName + "'";
-    con.query(groupCountQuery, function (err, result, fields) {
-        if (err) {
-            console.log("Group count error");
-            res.status(500).send("Error");
-            return;
-        } else if (result[0].COUNT > 0) {
-            console.log("Group name already exists.");
-            res.status(201).send("Group name already exists");
-            return;
-        } else {
-            const createGroupQuery = "INSERT INTO EXPENSE_GROUPS(GROUP_NAME, CREATED_BY, CREATE_DATE, GROUP_PICTURE) VALUES ('" + groupName + "'," + userID + ",'" + ts + "','" + imagePath + "')";
+    // groupSchema.findOne({ _id: req.body.groupId }).then(doc => {
+    //     console.log("imagepath")
+    //     console.log(doc.groupPicture)
+    //     imagePath = doc.groupPicture
+    // }).catch(error => {
+    //     console.log("error")
+    // })
 
-            con.query(createGroupQuery, function (err, result, fields) {
-                if (err) {
-                    console.log("error1");
-                    res.status(500).send('Error while creating group');
-                    return;
-                }
-                else {
-                    const lastGroupIDQuery = "SELECT MAX(GROUP_ID) AS GROUP_ID FROM EXPENSE_GROUPS";
-                    con.query(lastGroupIDQuery, function (err, result, fields) {
-                        if (err) {
-                            console.log(err);
-                            res.status(500).status(err);
-                            return;
-                        }
-                        else {
-                            groupID = result[0];
-                        }
-                    });
-
-                    const mainUserAddQuery = "INSERT INTO USER_GROUP_MAP(USER_ID, GROUP_ID, ADDED_BY, ADDED_DATE, INVITE_FLAG, JOIN_DATE) SELECT EXPENSE_GROUPS.CREATED_BY, EXPENSE_GROUPS.GROUP_ID, EXPENSE_GROUPS.CREATED_BY, EXPENSE_GROUPS.CREATE_DATE, 'A', EXPENSE_GROUPS.CREATE_DATE FROM EXPENSE_GROUPS WHERE EXPENSE_GROUPS.GROUP_NAME = '" + groupName + "'";
-                    con.query(mainUserAddQuery, function (err, result, fields) {
-                        if (err) {
-                            console.log("error2");
-                            res.status(500).send('Error');
-                            return;
-                        }
-                        const groupMembersList = groupMembers.split(',')
-                        for (let i = 0; i < groupMembersList.length; i++) {
-                            //const memUserID = req.body.groupMembers[i].value;
-                            const memUserID = groupMembersList[i]
-                            const memAddQuery = "INSERT INTO USER_GROUP_MAP(USER_ID, GROUP_ID, ADDED_BY, ADDED_DATE, INVITE_FLAG) SELECT " + memUserID + ", EXPENSE_GROUPS.GROUP_ID, " + userID + ", '" + ts + "', 'P' FROM EXPENSE_GROUPS WHERE EXPENSE_GROUPS.GROUP_NAME = '" + groupName + "'";
-                            console.log(memAddQuery);
-                            con.query(memAddQuery, function (err, result, fields) {
-                                if (err) {
-                                    console.log("error3");
-                                    return;
-                                }
-                            });
-                        }
-                        res.status(200).send(groupID);
-
-                    });
-                }
-            });
-
-
-        }
-    });*/
-
-
+    if (req.file) {
+        imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    }
+    groupSchema.findOneAndUpdate( { _id: req.body.groupId },
+        {
+            $set: {
+                groupName: req.body.groupName,
+                groupPicture: imagePath
+            }
+        }, { new: true }
+    ).then( response => {
+        console.log( "Group successfully updated" )
+        // callback( null, response )
+        res.status(200).send(response)
+    } ).catch( error => {
+        console.log( "Error in group update", error )
+        // callback( error, null )
+        res.status(500).send(error)
+    } )
 });
 
 // router.get('/mygroups/:userID', (req, res) => {

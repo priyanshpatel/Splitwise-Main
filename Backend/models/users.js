@@ -1,7 +1,19 @@
-const mongoose = require( 'mongoose' )
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose')
+let Schema = mongoose.Schema;
 
-var userSchema = new Schema( {
+let invitedGroupSchema = new Schema({
+    groupId: String
+})
+
+let acceptedGroupSchema = new Schema({
+    groupId: String
+})
+
+let debtSchema = new Schema({
+    debtId: String
+})
+
+let userSchema = new Schema({
     userEmail: { type: String, unique: true },
     userName: String,
     userPassword: String,
@@ -9,8 +21,11 @@ var userSchema = new Schema( {
     currency: String,
     language: String,
     profilePicture: String,
+    invitedGroups: [invitedGroupSchema],
+    acceptedGroups: [acceptedGroupSchema],
+    debts: [debtSchema]
 }
     , { collection: 'users' }
- )
+)
 
- module.exports = mongoose.model( 'userSchema', userSchema )
+module.exports = mongoose.model('userSchema', userSchema)

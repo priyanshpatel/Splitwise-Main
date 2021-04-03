@@ -138,15 +138,6 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
 
 router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req, res) => {
     let imagePath = null;
-
-    // groupSchema.findOne({ _id: req.body.groupId }).then(doc => {
-    //     console.log("imagepath")
-    //     console.log(doc.groupPicture)
-    //     imagePath = doc.groupPicture
-    // }).catch(error => {
-    //     console.log("error")
-    // })
-
     if (req.file) {
         imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
     }
@@ -166,6 +157,18 @@ router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         // callback( error, null )
         res.status(500).send(error)
     } )
+});
+
+router.get('/groupdetails/:groupId', checkAuth, (req, res) => {
+    const groupId = req.params.groupId;
+
+    groupSchema.findOne({_id: req.params.groupId}).then(doc => {
+        console.log(doc)
+        res.status(200).send(doc)
+    }).catch(error => {
+        console.log("Error while gettting group details", error)
+        res.status(500).send(error)
+    })
 });
 
 // router.get('/mygroups/:userID', (req, res) => {

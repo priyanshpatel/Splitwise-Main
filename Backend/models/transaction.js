@@ -9,7 +9,7 @@ let transactionSchema = new Schema({
     tranType: String,
     amount: Number,
     settleFlag: {type: String, default: 'N'},
-    settledDate: {type: String, timestamps: True}
+    settledDate: {type: String, timestamps: true}
 }
     , { collection: 'transaction' }
 )

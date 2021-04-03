@@ -42,7 +42,7 @@ router.post('/', ( req, res ) => {
         if( error.code == 11000 ) {
             res.status( 400 ).json( {errorMessage: "Email id already exists"} )
         } else {
-            res.status( 400 ).json( error )
+            res.status( 500 ).json( error )
         }
     } )
 } );

@@ -1,36 +1,56 @@
 const mongoose = require('mongoose')
 let Schema = mongoose.Schema;
 
-let acceptedUserSchema = new Schema({
-    userId: String
-})
+// let acceptedUserSchema = new Schema({
+//     userId: String
+// })
 
-let invitedUserSchema = new Schema({
-    userId: String
-})
+// let invitedUserSchema = new Schema({
+//     userId: String
+// })
 
-let expenseSchema = new Schema({
-    expenseId: String
-})
+// let expenseSchema = new Schema({
+//     expenseId: String
+// })
 
-let transactionSchema = new Schema({
-    tranId: String
-})
+// let transactionSchema = new Schema({
+//     tranId: String
+// })
 
-let debtSchema = new Schema({
-    debtId: String
-})
+// let debtSchema = new Schema({
+//     debtId: String
+// })
 
 let groupsSchema = new Schema({
     groupName: { type: String, unique: true },
     createdBy: String,
     createDate: String,
     groupPicture: String,
-    acceptedUsers: [acceptedUserSchema],
-    invitedUsers: [invitedUserSchema],
-    expenses: [expenseSchema],
-    transaction: [transactionSchema],
-    debts: [debtSchema]
+    acceptedUsers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
+    invitedUsers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
+    expenses: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
+    transaction: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
+    debts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
 }
     , { collection: 'groups' }
 )

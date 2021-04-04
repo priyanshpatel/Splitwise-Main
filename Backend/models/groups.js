@@ -21,6 +21,14 @@ let Schema = mongoose.Schema;
 //     debtId: String
 // })
 
+let groupBalanceSchema = new Schema({
+    balance: {type: Number},
+    userId: Schema.Types.ObjectId,
+},{
+    timestamps: true,
+    versionKey: false
+})
+
 let groupsSchema = new Schema({
     groupName: { type: String, unique: true },
     createdBy: String,
@@ -51,6 +59,7 @@ let groupsSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId,
         },
     ],
+    groupBalances: [groupBalanceSchema]
 }
     , { collection: 'groups' }
 )

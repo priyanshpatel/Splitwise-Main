@@ -9,12 +9,18 @@ let Schema = mongoose.Schema;
 //     userId: String
 // })
 
+let commentSchema = new Schema({
+    description: String,
+    expenseId: mongoose.Schema.Types.ObjectId,
+    AddedByUserId: mongoose.Schema.Types.ObjectId,
+    createdAt: { type: String, timestamps: true },
+})
+
 let expenseSchema = new Schema({
     description: String,
     amount: Number,
     groupId: String,
     paidByUserId: String,
-    createdAt: { type: String, timestamps: true },
     currency: String,
     settleFlag: { type: String, default: 'N' },
     settledWithUserId: [
@@ -27,13 +33,13 @@ let expenseSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId,
         },
     ],
-    comments: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-        }
-    ]
+    comments: [commentSchema]
 }
-    , { collection: 'expenses' }
+    , {
+        collection: 'expenses',
+        timestamps: true,
+        versionKey: false
+    }
 )
 
 module.exports = mongoose.model('expenseSchema', expenseSchema)

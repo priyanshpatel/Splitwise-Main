@@ -8,6 +8,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config/config');
 let { auth, checkAuth } = require('../config/passport')
+const mongoose = require('mongoose')
 auth();
 
 const groupSchema = require('../models/groups');
@@ -85,44 +86,44 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
 
         // const invitedUsers = () => { return userSchema.find({ _id: { $in: invitedUsersArr } }) };
         userSchema.find({ _id: { $in: invitedUsersArr } })
-        .then(response => {
-            console.log("============invited users=================");
-            console.log(invitedUsersArr);
+            .then(response => {
+                console.log("============invited users=================");
+                console.log(invitedUsersArr);
 
-            response.forEach(function (user) {
-                console.log("=-=-=-=-=-=-=-=-=-=-=-=",user)
-                userSchema.findByIdAndUpdate({ _id: user._id }
-                    , { $push: { invitedGroups: groupId } }, { new: true }
-                ).then(doc => {
-                    console.log("successfully updated invited group", doc);
-    
-                }).catch(error => {
-                    console.log("error", error);
+                response.forEach(function (user) {
+                    console.log("=-=-=-=-=-=-=-=-=-=-=-=", user)
+                    userSchema.findByIdAndUpdate({ _id: user._id }
+                        , { $push: { invitedGroups: groupId } }, { new: true }
+                    ).then(doc => {
+                        console.log("successfully updated invited group", doc);
+
+                    }).catch(error => {
+                        console.log("error", error);
+                    })
                 })
             })
-        })
-        
+
         let acceptedUsersArr = []
         req.body.acceptedUsers.forEach((element) => {
             acceptedUsersArr.push(element)
         })
 
         userSchema.find({ _id: { $in: acceptedUsersArr } })
-        .then(response => {
-            console.log("============accepted users=================");
-            console.log(acceptedUsersArr);
+            .then(response => {
+                console.log("============accepted users=================");
+                console.log(acceptedUsersArr);
 
-            response.forEach(function (user) {
-                userSchema.findByIdAndUpdate({ _id: user._id }
-                    , { $push: { acceptedGroups: groupId } }, { new: true }
-                ).then(doc => {
-                    console.log("successfully updated accepted group", doc);
-    
-                }).catch(error => {
-                    console.log("error", error);
+                response.forEach(function (user) {
+                    userSchema.findByIdAndUpdate({ _id: user._id }
+                        , { $push: { acceptedGroups: groupId } }, { new: true }
+                    ).then(doc => {
+                        console.log("successfully updated accepted group", doc);
+
+                    }).catch(error => {
+                        console.log("error", error);
+                    })
                 })
             })
-        })
         res.status(200).send(response)
     }).catch(error => {
         //console.log( "Error", error )
@@ -141,28 +142,28 @@ router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req,
     if (req.file) {
         imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
     }
-    groupSchema.findOneAndUpdate( { _id: req.body.groupId },
+    groupSchema.findOneAndUpdate({ _id: req.body.groupId },
         {
             $set: {
                 groupName: req.body.groupName,
                 groupPicture: imagePath
             }
         }, { new: true }
-    ).then( response => {
-        console.log( "Group successfully updated" )
+    ).then(response => {
+        console.log("Group successfully updated")
         // callback( null, response )
         res.status(200).send(response)
-    } ).catch( error => {
-        console.log( "Error in group update", error )
+    }).catch(error => {
+        console.log("Error in group update", error)
         // callback( error, null )
         res.status(500).send(error)
-    } )
+    })
 });
 
 router.get('/groupdetails/:groupId', checkAuth, (req, res) => {
     const groupId = req.params.groupId;
 
-    groupSchema.findOne({_id: req.params.groupId}).then(doc => {
+    groupSchema.findOne({ _id: req.params.groupId }).then(doc => {
         console.log(doc)
         res.status(200).send(doc)
     }).catch(error => {
@@ -170,6 +171,124 @@ router.get('/groupdetails/:groupId', checkAuth, (req, res) => {
         res.status(500).send(error)
     })
 });
+
+router.post('/acceptrejectinvite', (req, res) => {
+    const groupId = req.body.groupId;
+    const userId = req.body.userId;
+    const flag = req.body.flag; //A: accept invite, R: reject invite
+    // let pendingUsers = [];
+    let pendingUserIndex = null;
+    if (req.body.flag == 'A') {
+        // groupSchema.findOne({_id: req.body.groupId}).then(doc => {
+        //     console.log(doc)
+
+        // pendingUserIndex = doc.pendingUsers.indexOf(req.body.userId)
+        // console.log(pendingUserIndex);
+        // let elementToMove = doc.pendingUsers[pendingUserIndex]
+        // console.log(elementToMove)
+        // })
+
+        // ({_id: "foo", arrayField: { $elemMatch: arrayDocToMove} }, { $pull: { arrayField: arrayDocToMove }, $addToSet: { someOtherArrayField: arrayDocToMove } })
+
+        // groupSchema.updateOne({ 
+        //     _id: mongoose.Types.ObjectId('5ce3c94f0e259e7370966c63'), 
+        //     'visits_online._id': mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') 
+        // },{
+        //     $pull: { visits_online :  { _id: mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') }},
+        //     $push: { visits: mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') },
+        // })
+
+
+
+        groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: mongoose.Types.ObjectId(req.body.userId) }, { $pull: { invitedUsers: req.body.userId }, $push: { acceptedUsers: req.body.userId } }).then(doc => {
+            console.log("Member moved from pending to accepted", doc)
+
+            userSchema.updateOne({ _id: req.body.userId, invitedGroups: mongoose.Types.ObjectId(req.body.groupId) }, { $pull: { invitedGroups: req.body.groupId }, $push: { acceptedGroups: req.body.groupId } }).then(doc => {
+                console.log("Group moved from pending to accepted", doc)
+                res.status(200).send(doc)
+            }).catch(error => {
+                console.log("1111111111Error while moving group from pending to accepted1111111111", error)
+                res.status(500).send(error)
+                return;
+            })
+
+        }).catch(error => {
+
+            console.log("22222222222Error while moving member from pending to accepted22222222222", error)
+            res.status(500).send(error)
+            return;
+        })
+
+        // userSchema.updateOne({ _id: req.body.userId, invitedGroups: { $elemMatch: req.body.groupId } }, { $pull: { invitedGroups: req.body.groupId }, push: { acceptedGroups: req.body.groupId } }).then(doc => {
+        //     console.log("Group moved from pending to accepted", doc)
+        // }).catch(error => {
+        //     console.log("Error while moving group from pending to accepted", error)
+        //     res.status(500).send(error)
+        //     return;
+        // })
+
+    } else if (req.body.flag = 'R') {
+        groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: req.body.userId }, { $pull: { invitedUsers: req.body.userId } }).then(doc => {
+            console.log("Member moved from pending to accepted", doc)
+            userSchema.updateOne({ _id: req.body.userId, invitedGroups: req.body.groupId }, { $pull: { invitedGroups: req.body.groupId } }).then(doc => {
+                console.log("Group moved from pending to accepted", doc)
+                res.send(200).send(doc)
+                return;
+            }).catch(error => {
+                console.log("Error while moving group from pending to accepted", error)
+                res.status(500).send(error)
+                return;
+            })
+        }).catch(error => {
+            console.log("Error while moving user from pending to accepted", error)
+            res.status(500).send(error)
+            return;
+        })
+    }
+})
+
+router.get('/mygroupspending/:userId', (req, res) => {
+    let invitedGroups = []
+    userSchema.findOne({ _id: req.params.userId }).then(doc => {
+        invitedGroups = doc.invitedGroups
+
+        groupSchema.find({ _id: { $in: invitedGroups } }).then(doc => {
+            res.status(200).send(doc)
+            return;
+        }).catch(error => {
+            res.status(500).send(error)
+            return;
+        })
+    }).catch(error => {
+        res.status(500).send(error)
+        return;
+    })
+
+    
+});
+
+
+router.get('/mygroups/:userId', (req, res) => {
+    let acceptedGroups = []
+    userSchema.findOne({ _id: req.params.userId }).then(doc => {
+        acceptedGroups = doc.acceptedGroups
+
+        groupSchema.find({ _id: { $in: acceptedGroups } }).then(doc => {
+            res.status(200).send(doc)
+            return;
+        }).catch(error => {
+            console.log(error);
+            res.status(500).send({error})
+            return;
+        })
+
+    }).catch(error => {
+        console.log(error)
+        res.status(500).send({error})
+        return;
+    })
+});
+
 
 // router.get('/mygroups/:userID', (req, res) => {
 //     //const userID = req.body.userID

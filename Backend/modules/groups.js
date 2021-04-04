@@ -179,27 +179,6 @@ router.post('/acceptrejectinvite', (req, res) => {
     // let pendingUsers = [];
     let pendingUserIndex = null;
     if (req.body.flag == 'A') {
-        // groupSchema.findOne({_id: req.body.groupId}).then(doc => {
-        //     console.log(doc)
-
-        // pendingUserIndex = doc.pendingUsers.indexOf(req.body.userId)
-        // console.log(pendingUserIndex);
-        // let elementToMove = doc.pendingUsers[pendingUserIndex]
-        // console.log(elementToMove)
-        // })
-
-        // ({_id: "foo", arrayField: { $elemMatch: arrayDocToMove} }, { $pull: { arrayField: arrayDocToMove }, $addToSet: { someOtherArrayField: arrayDocToMove } })
-
-        // groupSchema.updateOne({ 
-        //     _id: mongoose.Types.ObjectId('5ce3c94f0e259e7370966c63'), 
-        //     'visits_online._id': mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') 
-        // },{
-        //     $pull: { visits_online :  { _id: mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') }},
-        //     $push: { visits: mongoose.Types.ObjectId('5ce5031ae8ee2e83b9ab23ff') },
-        // })
-
-
-
         groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: mongoose.Types.ObjectId(req.body.userId) }, { $pull: { invitedUsers: req.body.userId }, $push: { acceptedUsers: req.body.userId } }).then(doc => {
             console.log("Member moved from pending to accepted", doc)
 
@@ -219,18 +198,27 @@ router.post('/acceptrejectinvite', (req, res) => {
             return;
         })
 
-        // userSchema.updateOne({ _id: req.body.userId, invitedGroups: { $elemMatch: req.body.groupId } }, { $pull: { invitedGroups: req.body.groupId }, push: { acceptedGroups: req.body.groupId } }).then(doc => {
-        //     console.log("Group moved from pending to accepted", doc)
-        // }).catch(error => {
-        //     console.log("Error while moving group from pending to accepted", error)
-        //     res.status(500).send(error)
-        //     return;
-        // })
-
-    } else if (req.body.flag = 'R') {
+    } else if (req.body.flag == 'R') {
         groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: req.body.userId }, { $pull: { invitedUsers: req.body.userId } }).then(doc => {
             console.log("Member moved from pending to accepted", doc)
             userSchema.updateOne({ _id: req.body.userId, invitedGroups: req.body.groupId }, { $pull: { invitedGroups: req.body.groupId } }).then(doc => {
+                console.log("Group moved from pending to accepted", doc)
+                res.send(200).send(doc)
+                return;
+            }).catch(error => {
+                console.log("Error while moving group from pending to accepted", error)
+                res.status(500).send(error)
+                return;
+            })
+        }).catch(error => {
+            console.log("Error while moving user from pending to accepted", error)
+            res.status(500).send(error)
+            return;
+        })
+    } else if (req.body.flag == 'L'){
+        groupSchema.updateOne({ _id: req.body.groupId, acceptedUsers: req.body.userId }, { $pull: { acceptedUsers: req.body.userId } }).then(doc => {
+            console.log("Member moved from pending to accepted", doc)
+            userSchema.updateOne({ _id: req.body.userId, acceptedGroups: req.body.groupId }, { $pull: { acceptedGroups: req.body.groupId } }).then(doc => {
                 console.log("Group moved from pending to accepted", doc)
                 res.send(200).send(doc)
                 return;

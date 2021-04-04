@@ -215,7 +215,7 @@ router.post('/acceptrejectinvite', (req, res) => {
             res.status(500).send(error)
             return;
         })
-    } else if (req.body.flag == 'L'){
+    } else if (req.body.flag == 'L') {
         groupSchema.updateOne({ _id: req.body.groupId, acceptedUsers: req.body.userId }, { $pull: { acceptedUsers: req.body.userId } }).then(doc => {
             console.log("Member moved from pending to accepted", doc)
             userSchema.updateOne({ _id: req.body.userId, acceptedGroups: req.body.groupId }, { $pull: { acceptedGroups: req.body.groupId } }).then(doc => {
@@ -252,7 +252,7 @@ router.get('/mygroupspending/:userId', (req, res) => {
         return;
     })
 
-    
+
 });
 
 
@@ -266,17 +266,54 @@ router.get('/mygroups/:userId', (req, res) => {
             return;
         }).catch(error => {
             console.log(error);
-            res.status(500).send({error})
+            res.status(500).send({ error })
             return;
         })
 
     }).catch(error => {
         console.log(error)
-        res.status(500).send({error})
+        res.status(500).send({ error })
         return;
     })
 });
 
+router.get('/search/users', (req, res) => {
+    const userInput = req.query.keyword
+    userSchema.find(
+        {
+            $and: [
+                {
+                    $or: [{
+                        userName: { $regex: ".*" + userInput + ".*" }
+                    },
+                    { userEmail: { $regex: ".*" + userInput + ".*" } }
+                    ]
+                },
+                {
+                    _id: { $ne: req.query.userId }
+                }
+            ]
+        }
+    ).then(doc => { res.status(200).send(doc) }
+    ).catch(error => {
+        console.log("Error while searching for users", error)
+        res.status(500).send({ error })
+    })
+});
+
+
+// router.get('/search/groups/:userID', (req, res) => {
+//     const userID = req.params.userID
+//     const userInput = req.query.keyword
+//     // const groupSearchQuery = "SELECT USER_ID, USER_EMAIL, USER_NAME FROM USERS WHERE USER_NAME LIKE '%"+userInput+"%' OR USER_EMAIL LIKE '%"+userInput+"%'";
+//     const groupSearchQuery = "SELECT E.GROUP_ID, E.GROUP_NAME FROM EXPENSE_GROUPS E, USER_GROUP_MAP U WHERE E.GROUP_NAME LIKE '%" + userInput + "%' AND E.GROUP_ID = U.GROUP_ID AND U.INVITE_FLAG = 'A' AND U.USER_ID = " + userID;
+//     groupSchema.find({ $or: [{ groupName: /.*userInput.*/ }, { userEmail: /.*userInput.*/ }] }).then(doc => {
+//         res.status(200).send(doc)
+//     }).catch(error => {
+//         console.log("Error while searching for users", error)
+//         res.status(500).send({ error })
+//     })
+// });
 
 // router.get('/mygroups/:userID', (req, res) => {
 //     //const userID = req.body.userID

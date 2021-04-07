@@ -3,8 +3,8 @@ let Schema = mongoose.Schema;
 
 let debtSchema = new Schema({
     groupId: mongoose.Schema.Types.ObjectId,
-    UserId1: mongoose.Schema.Types.ObjectId,
-    UserId2: mongoose.Schema.Types.ObjectId,
+    userId1: mongoose.Schema.Types.ObjectId,
+    userId2: mongoose.Schema.Types.ObjectId,
     amount: Number
 }
     , {

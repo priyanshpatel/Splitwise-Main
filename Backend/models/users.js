@@ -36,6 +36,11 @@ let userSchema = new Schema({
             type: mongoose.Schema.Types.ObjectId,
         },
     ],
+    transaction: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+        },
+    ],
 }
     , { collection: 'users' }
 )

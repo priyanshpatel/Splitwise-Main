@@ -22,10 +22,10 @@ let Schema = mongoose.Schema;
 // })
 
 let groupBalanceSchema = new Schema({
-    balance: {type: Number},
-    userId: Schema.Types.ObjectId,
-},{
-    timestamps: true,
+    balance: Number,
+    userId: mongoose.Schema.Types.ObjectId,
+}, {
+    _id: false,
     versionKey: false
 })
 

@@ -19,16 +19,25 @@ const debtSchema = require('../models/debts');
 const { response } = require('express');
 const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 
-let transaction = null
-let expId = null
-let groupMembers = []
-let tranType = 3
-let transactionList = []
-let tranIdList = []
-let expenseList = []
-let debtList = []
+// let transaction = null
+// let expId = null
+// let groupMembers = []
+// let tranType = 3
+// let transactionList = []
+// let tranIdList = []
+// let expenseList = []
+// let debtList = []
 
 router.post('/add', async (req, res) => {
+    let transaction = null
+    let expId = null
+    let groupMembers = []
+    let tranType = 3
+    let transactionList = []
+    let tranIdList = []
+    let expenseList = []
+    let debtList = []
+
     let expense = new expenseSchema({
         description: req.body.description,
         amount: req.body.amount,
@@ -205,11 +214,23 @@ router.post('/add', async (req, res) => {
 
         } //)
         console.log("After foreach")
-        console.log(tranIdList)
-        
+        console.log("tranid list", tranIdList)
+        console.log("expense list", expenseList)
+
+        //Save expense id to groups
+        groupSchemaDoc.expenses.push(...expenseList)
+
+        //Save transactions to groups
+        groupSchemaDoc.transaction.push(...tranIdList)
+
         // Update groupbalances
         let groupBalancesSave = await groupSchemaDoc.save()
-        console.log("Groupbalances saved successfully", groupBalancesSave)
+        console.log("Groupbalances, expense, transaction saved successfully", groupBalancesSave)
+
+        let expenseSchemaDoc = await expenseSchema.findOne({ _id: expId })
+        expenseSchemaDoc.transactions.push(...tranIdList)
+        let expenseSchemaSave = await expenseSchemaDoc.save()
+        console.log("Transactions successfully added to expense", expenseSchemaSave)
 
         // Add transaction ids to user schema for paid by user
         let userSchemaUpdTran = await userSchema.updateOne(
@@ -217,9 +238,12 @@ router.post('/add', async (req, res) => {
             { $push: { transaction: tranIdList } }
         )
         console.log("Transactions added successfully to paidBy user schema")
+        res.status(200).json({
+            expId: expId
+        })
 
     } catch (error) {
-        res.status('Error while adding expense', error)
+        res.status(200).send(error)
     }
 })
 

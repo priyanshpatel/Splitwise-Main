@@ -10,7 +10,7 @@ let transactionSchema = new Schema({
     amount: {
         type: Number, validate: {
             validator: function (num) {
-                return num > 0;
+                return num >= 0;
             },
             message: (props) => `${props.value} is not a positive number`,
         },

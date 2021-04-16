@@ -105,14 +105,15 @@ router.post('/add', async (req, res) => {
                 groupBalanceIndex = getIndexOfGroupBalances(member, groupBalances)
                 if (groupBalanceIndex == -1) {
                     updGroupBalance = {
-                        balance: (req.body.amount / groupMembers.length).toFixed(2),
+                        // balance: (req.body.amount / groupMembers.length).toFixed(2),
+                        balance: (req.body.amount - (req.body.amount / groupMembers.length)).toFixed(2),
                         userId: member
                     }
                     //push newgroupBalance
                     groupSchemaDoc.groupBalances.push(updGroupBalance)
                 } else {
                     updGroupBalance = {
-                        balance: parseFloat(groupBalances[groupBalanceIndex].balance) + parseFloat((req.body.amount / groupMembers.length).toFixed(2)),
+                        balance: parseFloat(groupBalances[groupBalanceIndex].balance) + parseFloat((req.body.amount - (req.body.amount / groupMembers.length)).toFixed(2)),
                         userId: member
                     }
                     groupSchemaDoc.groupBalances[groupBalanceIndex] = updGroupBalance
@@ -243,7 +244,7 @@ router.post('/add', async (req, res) => {
         })
 
     } catch (error) {
-        res.status(200).send(error)
+        res.status(500).send(error)
     }
 })
 

@@ -16,6 +16,7 @@ const userSchema = require('../models/users');
 const expenseSchema = require('../models/expenses');
 const transactionSchema = require('../models/transaction');
 const debtSchema = require('../models/debts');
+const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 
 // set storage
 const storage = multer.diskStorage({
@@ -299,6 +300,63 @@ router.get('/search/users', (req, res) => {
         console.log("Error while searching for users", error)
         res.status(500).send({ error })
     })
+});
+
+router.post('/leave', async (req, res) => {
+    const groupId = req.body.groupId;
+    const userId = req.body.userId;
+
+    try {
+        let groupSchemaDoc = await groupSchema.findOne(
+            {
+                _id: groupId
+            },
+            {
+                acceptedUsers: 1,
+                groupBalances: 1
+            }
+        )
+
+        let groupBalanceIndex = getIndexOfGroupBalances(userId, groupSchemaDoc.groupBalances)
+
+        if(groupSchemaDoc.groupBalances[groupBalanceIndex].amount !== 0){
+            res.status(400).send("Please settle up your debts first")
+        } else {
+            // { $pull: { invitedUsers: req.body.userId }
+
+
+            res.status(200).send(groupSchemaDoc)
+        }
+
+    } catch (error) {
+        console.log("Error while leaving group", error)
+        res.status(500).send(error)
+    }
+
+    // const getDebtQuery = "SELECT IFNULL(SUM(D.AMOUNT),0) AS DEBT_AMOUNT FROM DEBTS D WHERE D.GROUP_ID = " + groupID + " AND (D.USER_ID_1 = " + userID + " OR D.USER_ID_2 = " + userID + ")";
+    // const leaveGroupQuery = "UPDATE USER_GROUP_MAP SET INVITE_FLAG = 'L' WHERE GROUP_ID = " + groupID + " AND USER_ID = " + userID
+    // con.query(getDebtQuery, function (err, result, fields) {
+    //     if (err) {
+    //         res.status(500).send(err);
+    //         return;
+    //     } else {
+    //         const debtAmount = result[0].DEBT_AMOUNT;
+    //         if (debtAmount != 0) {
+    //             res.status(201).send("Please settle up your balance first")
+    //         }
+    //         else {
+    //             con.query(leaveGroupQuery, function (err, result, fields) {
+    //                 if (err) {
+    //                     console.log(err);
+    //                     //res.status(500).send("Error while leaving group");
+    //                     return;
+    //                 } else {
+    //                     res.status(200).send("Left group successfully");
+    //                 }
+    //             });
+    //         }
+    //     }
+    // });
 });
 
 

@@ -45,12 +45,14 @@ const login = require('./modules/login')
 const groups = require('./modules/groups')
 const expenses = require('./modules/expenses')
 const activities = require('./modules/activities')
+const profile = require('./modules/profile')
 
 app.use('/signup', signup)
 app.use('/login', login)
 app.use('/groups', groups)
 app.use('/expenses', expenses)
 app.use('/activities', activities)
+app.use('/profile', profile)
 
 app.use( express.static( "public" ) );
 

@@ -123,31 +123,6 @@ router.post('/settleup', async (req, res) => {
         res.status(500).send(error)
     }
 
-    // // Get Groups
-    // let debtGroupsList = []
-    // for (const debt of debtSchemaDoc) {
-    //     debtGroupsList.push(debt.groupId)
-    // }
-
-
-
-
-
-
-
-    // // Set debt amount to 0
-    // let debtSchemaUpd = await debtSchema.updateMany(
-    //     {
-    //         $and: [
-    //             { groupId: req.body.groupId },
-    //             { userId1: userId1 },
-    //             { userId2: userId2 }
-    //         ]
-    //     },
-    //     { $set: { amount: 0 } }
-    // )
-    // console.log("Debts successfully reset", debtSchemaUpd)
-
     // // Change settle flag in transaction
     // let tranSchemaUpd = await transactionSchema.updateMany(
     //     {
@@ -171,5 +146,50 @@ router.post('/settleup', async (req, res) => {
     // console.log("Settled flag successfully changed in transaction schema", tranSchemaUpd)
 
 })
+
+router.get('/settleup/dropdown/:userId', async (req, res) => {
+    let debtSchemaDoc = null;
+    let debtSchemaDoc1 = null;
+    let userSchemaDoc = null;
+    const userId = req.params.userId;
+    let userIdArr = []
+    let dropDownList = [];
+
+    try {
+        debtSchemaDoc = await debtSchema.find(
+            { userId1: userId },
+            { userId2: 1, _id: 0 }
+        )
+        for (const debt of debtSchemaDoc) {
+            userIdArr.push(debt.userId2)
+        }
+
+        debtSchemaDoc1 = await debtSchema.find(
+            { userId2: userId },
+            { userId2: 1, _id: 0 }
+        )
+        for (const debt of debtSchemaDoc1) {
+            userIdArr.push(debt.userId1)
+        }
+
+        userSchemaDoc = await userSchema.find(
+            { _id: { $in: userIdArr } },
+            { userName: 1, userEmail: 1, _id: 1 }
+        )
+        for (const user of userSchemaDoc) {
+            dropDownList.push({
+                "_id": user._id,
+                "userName": user.userName,
+                "userEmail": user.Email,
+                "userNameEmail": user.userName + ' (' + user.userEmail + ')'
+            })
+        }
+
+        res.status(200).send(dropDownList)
+    } catch (error) {
+        console.log("Inside error", error)
+        res.status(500).send(error)
+    }
+});
 
 module.exports = router;

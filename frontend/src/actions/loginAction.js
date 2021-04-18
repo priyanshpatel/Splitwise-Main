@@ -43,14 +43,14 @@ let loginAction = (data) => (dispatch) => {
                 let decoded = jwt_decode(response.data.toString().split(' ')[1])
                 console.log("decoded", decoded)
                 //redirect to dashboard
-                this.setState({
-                    authFlag: false,
-                    MsgFlag: false,
-                    Msg: "login success",
-                    userID: decoded._id
-                })
+                // this.setState({
+                //     authFlag: false,
+                //     MsgFlag: false,
+                //     Msg: "login success",
+                //     userID: decoded._id
+                // })
                 cookie.save('token', response.data, { path: '/' })
-                cookie.save('userID', decoded._id, { path: '/' })
+                cookie.save('userId', decoded._id, { path: '/' })
                 cookie.save('userEmail', decoded.userEmail, { path: '/' })
                 cookie.save('userName', decoded.userName, { path: '/' })
                 cookie.save('phoneNumber', decoded.phoneNumber, { path: '/' })

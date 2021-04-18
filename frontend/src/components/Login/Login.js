@@ -13,7 +13,7 @@ export class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userID: null,
+            userId: null,
             userEmail: "",
             userPassword: "",
             authFlag: false,
@@ -88,8 +88,12 @@ export class Login extends Component {
     }
     render() {
         let renderError = null
-        if ( this.props.error ) {
-            renderError = <div class="alert alert-danger" role="alert">{ this.props.message }</div>
+        let redirectVar = null
+        if (cookie.load('token')) {
+            redirectVar = <Redirect to='/dashboard' />
+        }
+        if (this.props.error) {
+            renderError = <div class="alert alert-danger" role="alert">{this.props.message}</div>
         }
         return (
             <BrowserRouter>
@@ -115,7 +119,7 @@ export class Login extends Component {
                             </form>
                             <br></br>
                             {/* {this.state.MsgFlag ? <div class="alert alert-danger" role="alert">{this.state.Msg}</div> : null} */}
-                            { renderError }
+                            {renderError}
                         </div>
                     </div>
                 </div>
@@ -125,8 +129,8 @@ export class Login extends Component {
 }
 // export default Login;
 
-const matchStateToProps = ( state ) => {
-    console.log( "inside matchStatetoProps", state )
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
     return {
         error: state.loginReducer.error,
         message: state.loginReducer.message
@@ -134,10 +138,10 @@ const matchStateToProps = ( state ) => {
 
 }
 
-const matchDispatchToProps = ( dispatch ) => {
+const matchDispatchToProps = (dispatch) => {
     return {
-        loginAction: ( data ) => dispatch( loginAction( data ) ),
+        loginAction: (data) => dispatch(loginAction(data)),
     }
 }
 
-export default connect( matchStateToProps, matchDispatchToProps )( Login )
+export default connect(matchStateToProps, matchDispatchToProps)(Login)

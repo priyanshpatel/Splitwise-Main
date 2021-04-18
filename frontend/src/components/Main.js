@@ -3,7 +3,7 @@ import {Route} from 'react-router-dom';
 // import Navbar from './LandingPage/Navbar';
 import LandingPage from './LandingPage/LandingPage';
 import Login from './Login/Login';
-// import Signup from './Signup/Signup';
+import Signup from './Signup/Signup';
 // import Dashboard from './Dashboard/Dashboard';
 // import Profile from './Profile/Profile';
 // import CreateGroup from './Groups/CreateGroup';
@@ -18,7 +18,7 @@ class Main extends Component {
                 {/*Render Different Component based on Route*/}
                 {<Route exact path="/" component={LandingPage}/>}
                 {<Route path="/login" component={Login}/>}
-                {/* {<Route path="/signup" component={Signup}/>} */}
+                {<Route path="/signup" component={Signup}/>}
                 {/* {<Route path="/dashboard" component={Dashboard}/>} */}
                 {/* {<Route path="/profile" component={Profile} />} */}
                 {/* {<Route path="/creategroup" component={CreateGroup} />} */}

@@ -13,7 +13,7 @@ class Navbar extends Component {
     }
 
     handleLogout = () => {
-        cookie.remove('userID', { path: '/' })
+        cookie.remove('userId', { path: '/' })
         cookie.remove('userName', { path: '/' })
         cookie.remove('phoneNumber', { path: '/' })
         cookie.remove('timezone', { path: '/' })
@@ -23,7 +23,7 @@ class Navbar extends Component {
     }
 
     render() {
-        if (cookie.load('userID')) {
+        if (cookie.load('userId')) {
             return (
                 <BrowserRouter>
                 <div>

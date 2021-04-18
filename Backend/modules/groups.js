@@ -302,6 +302,53 @@ router.get('/search/users', (req, res) => {
     })
 });
 
+router.get('/groupexpenses/:groupId', async (req, res) => {
+    const groupId = req.params.groupId
+    let resArray = []
+    // let resObj = {}
+    try {
+        let expenseSchemaDoc = await expenseSchema.find(
+            { groupId: groupId }
+        ).sort({ _id: -1 })
+        console.log(expenseSchemaDoc)
+        for (const doc of expenseSchemaDoc) {
+            let settledWithUserName = ''
+            let paidByUserName = await userSchema.findOne(
+                { _id: doc.paidByUserId },
+                { userName: 1 }
+            )
+            if (doc.settledWithUserId != null && doc.settleFlag == 'Y') {
+                settledWithUserName = await userSchema.findOne(
+                    { _id: doc.settledWithUserId[0] },
+                    { userName: 1 }
+                )
+            }
+            // console.log(paidByUserName)
+            let resObj = {}
+            resObj.paidByUserId = paidByUserName._id
+            resObj.paidByUserName = paidByUserName.userName
+            resObj.description = doc.description
+            resObj.amount = doc.amount
+            resObj.currency = doc.currency
+            resObj.comments = doc.comments
+            resObj.createdAt = doc.createdAt
+            resObj.settleFlag = doc.settleFlag
+            resObj.settledWithUserId = doc.settledWithUserId
+            resObj.settledWithUserName = settledWithUserName.userName
+
+            // resObj.expense = doc
+            // resObj.expense = doc
+            resArray.push(resObj)
+        }
+        
+        res.status(200).send(resArray)
+    } catch (error) {
+        console.log("Error while getting group expenses", error)
+        res.status(500).send(error)
+    }
+    // const groupExpenseQuery = "SELECT E.*, U.USER_NAME, (SELECT S.USER_NAME FROM USERS S WHERE S.USER_ID = E.SETTLED_WITH_USER_ID) AS SETTLED_WITH_USER_NAME FROM EXPENSES E, USERS U WHERE U.USER_ID = E.PAID_BY_USER_ID AND E.GROUP_ID = " + groupID + " ORDER BY EXP_ID DESC"
+});
+
 router.post('/leave', async (req, res) => {
     const groupId = req.body.groupId;
     const userId = req.body.userId;
@@ -319,7 +366,7 @@ router.post('/leave', async (req, res) => {
 
         let groupBalanceIndex = getIndexOfGroupBalances(userId, groupSchemaDoc.groupBalances)
 
-        if(groupSchemaDoc.groupBalances[groupBalanceIndex].amount !== 0){
+        if (groupSchemaDoc.groupBalances[groupBalanceIndex].amount !== 0) {
             res.status(400).send("Please settle up your debts first")
         } else {
             // { $pull: { invitedUsers: req.body.userId }

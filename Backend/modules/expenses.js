@@ -43,7 +43,8 @@ router.post('/add', async (req, res) => {
         amount: req.body.amount,
         groupId: req.body.groupId,
         paidByUserId: req.body.userId,
-        currency: req.body.currency
+        currency: req.body.currency,
+        comments: req.body.comments
     })
     try {
         let expenseResponse = await expense.save()

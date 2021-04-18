@@ -13,7 +13,7 @@ class LandingPage extends Component {
 
     render() {
         let redirectVar = null;
-        if (cookie.load('userID')) {
+        if (cookie.load('userId')) {
             redirectVar = <Redirect to="/dashboard" />
         }
         return (

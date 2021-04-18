@@ -89,41 +89,44 @@ export class Login extends Component {
     render() {
         let renderError = null
         let redirectVar = null
-        if (cookie.load('token')) {
+        if (cookie.load('userId')) {
             redirectVar = <Redirect to='/dashboard' />
         }
         if (this.props.error) {
             renderError = <div class="alert alert-danger" role="alert">{this.props.message}</div>
         }
         return (
-            <BrowserRouter>
-                <div>
-                    <Navbar />
-                </div>
-                <div class="container">
-                    <div class="row div-pad">
-                        <div class="col-3"></div>
-                        <div class="col-3">
-                            <img src={splitwise_logo} width="250" height="250" alt="" />
-                        </div>
-                        <div class="col-3">
-                            <span style={{ color: "#8a8f94" }}><strong>WELCOME TO SPLITWISE</strong></span><br /><br />
-                            <form onSubmit={this.submitLogin} method="post">
-                                <label for="inputEmail"><strong>Email address</strong></label>
-                                <input class="form-input" onChange={this.emailChangeHandler} type="email" id="inputEmail" class="form-control" name="email" required></input>
-                                <br />
-                                <label for="inputPassword"><strong>Password</strong></label>
-                                <input class="form-input" id="inputPassword" onChange={this.passwordChangeHandler} type="password" class="form-control" name="password" required></input>
-                                <br />
-                                <button class="btn btn-primary" type="submit" style={{ backgroundColor: "#ed752f", border: "none" }}>Log In</button>
-                            </form>
-                            <br></br>
-                            {/* {this.state.MsgFlag ? <div class="alert alert-danger" role="alert">{this.state.Msg}</div> : null} */}
-                            {renderError}
+            <div>
+                {redirectVar}
+                <BrowserRouter>
+                    <div>
+                        <Navbar />
+                    </div>
+                    <div class="container">
+                        <div class="row div-pad">
+                            <div class="col-3"></div>
+                            <div class="col-3">
+                                <img src={splitwise_logo} width="250" height="250" alt="" />
+                            </div>
+                            <div class="col-3">
+                                <span style={{ color: "#8a8f94" }}><strong>WELCOME TO SPLITWISE</strong></span><br /><br />
+                                <form onSubmit={this.submitLogin} method="post">
+                                    <label for="inputEmail"><strong>Email address</strong></label>
+                                    <input class="form-input" onChange={this.emailChangeHandler} type="email" id="inputEmail" class="form-control" name="email" required></input>
+                                    <br />
+                                    <label for="inputPassword"><strong>Password</strong></label>
+                                    <input class="form-input" id="inputPassword" onChange={this.passwordChangeHandler} type="password" class="form-control" name="password" required></input>
+                                    <br />
+                                    <button class="btn btn-primary" type="submit" style={{ backgroundColor: "#ed752f", border: "none" }}>Log In</button>
+                                </form>
+                                <br></br>
+                                {/* {this.state.MsgFlag ? <div class="alert alert-danger" role="alert">{this.state.Msg}</div> : null} */}
+                                {renderError}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </BrowserRouter>
+                </BrowserRouter>
+            </div>
         )
     }
 }

@@ -4,7 +4,7 @@ import {Route} from 'react-router-dom';
 import LandingPage from './LandingPage/LandingPage';
 import Login from './Login/Login';
 import Signup from './Signup/Signup';
-// import Dashboard from './Dashboard/Dashboard';
+import Dashboard from './Dashboard/Dashboard';
 // import Profile from './Profile/Profile';
 // import CreateGroup from './Groups/CreateGroup';
 // import MyGroups from './Groups/MyGroups';
@@ -19,7 +19,7 @@ class Main extends Component {
                 {<Route exact path="/" component={LandingPage}/>}
                 {<Route path="/login" component={Login}/>}
                 {<Route path="/signup" component={Signup}/>}
-                {/* {<Route path="/dashboard" component={Dashboard}/>} */}
+                {<Route path="/dashboard" component={Dashboard}/>}
                 {/* {<Route path="/profile" component={Profile} />} */}
                 {/* {<Route path="/creategroup" component={CreateGroup} />} */}
                 {/* {<Route path="/mygroups" component={MyGroups} />} */}

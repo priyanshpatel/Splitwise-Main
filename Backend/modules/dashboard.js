@@ -94,6 +94,7 @@ router.get('/you_are_owed/:userId', async (req, res) => {
                     total: { $sum: "$amount" }
                 }
             }])
+
         for (const doc of tranSchemaDoc1) {
             let userSchemaDoc = await userSchema.findOne(
                 { _id: doc._id },
@@ -103,6 +104,7 @@ router.get('/you_are_owed/:userId', async (req, res) => {
                     userEmail: 1
                 }
             )
+            resObj = {}
             resObj._id = userSchemaDoc._id
             resObj.userEmail = userSchemaDoc.userEmail
             resObj.userName = userSchemaDoc.userName
@@ -148,6 +150,7 @@ router.get('/you_owe/:userId', async (req, res) => {
                     userEmail: 1
                 }
             )
+            resObj = {}
             resObj._id = userSchemaDoc._id
             resObj.userEmail = userSchemaDoc.userEmail
             resObj.userName = userSchemaDoc.userName

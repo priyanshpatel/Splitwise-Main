@@ -6,8 +6,8 @@ import Navbar from '../LandingPage/Navbar';
 import splitwise_logo from '../../images/splitwise_logo.png';
 import axios from 'axios';
 import Modal from 'react-modal';
-import Settle from "./Settle";
-import config from "../../config.json";
+// import Settle from "./Settle";
+import API_URL from "../../config/config";
 
 const customStyles = {
     content: {
@@ -26,7 +26,7 @@ class Dashboard extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userID: null,
+            userId: null,
             totalBalance: null,
             totalYouOwe: null,
             totalYouAreOwed: null,
@@ -39,24 +39,26 @@ class Dashboard extends Component {
 
     componentWillMount() {
         this.setState({
-            userID: parseInt(cookie.load('userID'))
+            userId: parseInt(cookie.load('userId'))
         })
     }
 
     componentDidMount() {
         const data = {
-            "userID": parseInt(cookie.load('userID'))
+            "userId": parseInt(cookie.load('userId'))
         }
 
         console.log(data);
 
         axios.defaults.withCredentials = true;
-        axios.get(config.API_URL+'/dashboard/total_balance/' + cookie.load('userID'))
+        axios.get(API_URL+'/dashboard/total_dashboard/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log(response.data);
                     this.setState({
-                        totalBalance: response.data.TOTAL_BALANCE
+                        totalBalance: response.data.totalBalance,
+                        totalYouOwe: response.data.totalYouOwe,
+                        totalYouAreOwed: response.data.totalYouAreOwed
                     })
                 }
                 // console.log("<<<<<<<<<<Response data>>>>>>>>>");
@@ -65,31 +67,44 @@ class Dashboard extends Component {
                 console.log(e);
             })
 
-        axios.get(config.API_URL+'/dashboard/total_you_owe/' + cookie.load('userID'))
-            .then(response => {
-                if (response.status === 200) {
-                    console.log(response.data);
-                    this.setState({
-                        totalYouOwe: response.data.TOTAL_AMOUNT
-                    })
-                }
-            }).catch(e => {
-                console.log(e);
-            })
 
-        axios.get(config.API_URL+'/dashboard/total_you_are_owed/' + cookie.load('userID'))
-            .then(response => {
-                if (response.status === 200) {
-                    console.log(response.data);
-                    this.setState({
-                        totalYouAreOwed: response.data.TOTAL_AMOUNT
-                    })
-                }
-            }).catch(e => {
-                console.log(e);
-            })
+        // axios.get(config.API_URL+'/dashboard/total_balance/' + cookie.load('userId'))
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             console.log(response.data);
+        //             this.setState({
+        //                 totalBalance: response.data.TOTAL_BALANCE
+        //             })
+        //         }
+        //     }).catch(e => {
+        //         console.log(e);
+        //     })
 
-        axios.get(config.API_URL+'/dashboard/you_are_owed/' + cookie.load('userID'))
+        // axios.get(config.API_URL+'/dashboard/total_you_owe/' + cookie.load('userId'))
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             console.log(response.data);
+        //             this.setState({
+        //                 totalYouOwe: response.data.TOTAL_AMOUNT
+        //             })
+        //         }
+        //     }).catch(e => {
+        //         console.log(e);
+        //     })
+
+        // axios.get(config.API_URL+'/dashboard/total_you_are_owed/' + cookie.load('userId'))
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             console.log(response.data);
+        //             this.setState({
+        //                 totalYouAreOwed: response.data.TOTAL_AMOUNT
+        //             })
+        //         }
+        //     }).catch(e => {
+        //         console.log(e);
+        //     })
+
+        axios.get(API_URL+'/dashboard/you_are_owed/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log(response.data);
@@ -101,7 +116,7 @@ class Dashboard extends Component {
                 console.log(e);
             })
 
-        axios.get(config.API_URL+'/dashboard/you_owe/' + cookie.load('userID'))
+        axios.get(API_URL+'/dashboard/you_owe/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log("[[[[[[[[[inside if]]]]]]]]]]");
@@ -132,7 +147,7 @@ class Dashboard extends Component {
         console.log(this.state.totalBalance);
         console.log(this.state.youOweList);
         let redirectVar = null;
-        if (!cookie.load('userID')) {
+        if (!cookie.load('userId')) {
             redirectVar = <Redirect to="/" />
         }
 
@@ -150,7 +165,7 @@ class Dashboard extends Component {
                 // return <div class="p-3 border bg-light">{invite}</div>;
                 return <div class="card text-dark bg-light" style={{ width: '38rem' }}>
                     <div class="card-body">
-                        <h6 class="card-title">You owe <strong>{youOwe.USER_NAME} <span style={{ color: "#ed752f" }}>${youOwe.TOTAL_AMOUNT}</span></strong></h6>
+                        <h6 class="card-title">You owe <strong>{youOwe.userName} <span style={{ color: "#ed752f" }}>${youOwe.totalAmount}</span></strong></h6>
                     </div>
                 </div>
             })
@@ -162,7 +177,7 @@ class Dashboard extends Component {
                 // return <div class="p-3 border bg-light">{invite}</div>;
                 return <div class="card text-dark bg-light" style={{ width: '38rem' }}>
                     <div class="card-body">
-                        <h6 class="card-title"><strong>{youAreOwed.USER_NAME}</strong> owes you <strong><span style={{ color: "#59cfa7" }}>${youAreOwed.TOTAL_AMOUNT}</span></strong></h6>
+                        <h6 class="card-title"><strong>{youAreOwed.userName}</strong> owes you <strong><span style={{ color: "#59cfa7" }}>${youAreOwed.totalAmount}</span></strong></h6>
                     </div>
                 </div>
             })
@@ -242,9 +257,9 @@ class Dashboard extends Component {
                                 {youAreOwedList.length < 1 ? <div class="alert alert-success" role="alert">You are not owed anything</div> : null}
                             </div>
                         </div>
-                        <Modal style={customStyles} isOpen={this.state.settleUpPopUp} ariaHideApp={false}>
+                        {/* <Modal style={customStyles} isOpen={this.state.settleUpPopUp} ariaHideApp={false}>
                             <Settle data={this.state} closePopUp={this.toggleSettleUp} />
-                        </Modal>
+                        </Modal> */}
                     </div>
                 </BrowserRouter>
             </div>

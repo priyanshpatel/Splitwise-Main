@@ -302,6 +302,28 @@ router.get('/search/users', (req, res) => {
     })
 });
 
+router.get('/search/groups/:userId', async (req, res) => {
+    const userId = req.params.userId
+    const userInput = req.query.keyword
+    try {
+        let groupSchemaDoc = await groupSchema.find(
+            {
+                $and: [
+                    { acceptedUsers: { $in: userId } },
+                    { groupName: { $regex: ".*" + userInput + ".*" } }
+                ]
+            },
+            {
+                groupName: 1
+            }
+        )
+        res.status(200).send(groupSchemaDoc)
+    } catch (error) {
+        console.log("Error while searching groups", error)
+        res.status(500).send(error)
+    }
+});
+
 router.get('/groupexpenses/:groupId', async (req, res) => {
     const groupId = req.params.groupId
     let resArray = []
@@ -340,7 +362,7 @@ router.get('/groupexpenses/:groupId', async (req, res) => {
             // resObj.expense = doc
             resArray.push(resObj)
         }
-        
+
         res.status(200).send(resArray)
     } catch (error) {
         console.log("Error while getting group expenses", error)

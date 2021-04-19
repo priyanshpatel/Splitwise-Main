@@ -158,9 +158,12 @@ router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         // callback( null, response )
         res.status(200).send(response)
     }).catch(error => {
-        console.log("Error in group update", error)
-        // callback( error, null )
-        res.status(500).send(error)
+        if( error.code == 11000 ) {
+            res.status( 201 ).send("Group name already exists")
+        } else {
+            console.log("Error in group update", error)
+            res.status( 500 ).json( error )
+        }
     })
 });
 

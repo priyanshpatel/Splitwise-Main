@@ -39,13 +39,13 @@ class Dashboard extends Component {
 
     componentWillMount() {
         this.setState({
-            userId: parseInt(cookie.load('userId'))
+            userId: cookie.load('userId')
         })
     }
 
     componentDidMount() {
         const data = {
-            "userId": parseInt(cookie.load('userId'))
+            "userId": cookie.load('userId')
         }
 
         console.log(data);

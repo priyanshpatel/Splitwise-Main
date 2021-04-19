@@ -31,7 +31,7 @@ class MyGroups extends Component {
     }
     componentWillMount() {
         this.setState({
-            userId: parseInt(cookie.load('userId'))
+            userId: cookie.load('userId')
         })
     }
     componentDidMount() {
@@ -63,7 +63,7 @@ class MyGroups extends Component {
             axios.defaults.withCredentials = true;
         axios.get(API_URL + '/groups/mygroups/' + cookie.load('userId'))
             .then(response => {
-                console.log("Accepted groups called", response)
+                // console.log("Accepted groups called", response)
                 if (response.status === 200) {
                     this.setState({
                         //MsgFlag: false,
@@ -92,8 +92,8 @@ class MyGroups extends Component {
     // Remove Invite
     rejectInvite = (group) => {
         const data = {
-            userId: parseInt(cookie.load('userId')),
-            groupId: group._id,
+            userId: cookie.load('userId'),
+            groupId: group.groupId,
             flag: 'R'
         }
         axios.defaults.headers.common["authorization"] = cookie.load('token')
@@ -110,7 +110,7 @@ class MyGroups extends Component {
             })
 
         const newPendingInvites = this.state.pendingInvites.filter((invite) => {
-            return group._id != invite._id
+            return group.groupId != invite._id
         });
         const emptyInvitesFlag = newPendingInvites.length == 0 ? true : false;
         this.setState({
@@ -120,14 +120,16 @@ class MyGroups extends Component {
     }
 
     leaveGroup = (group) => {
+        // console.log("====group====", group)
         const data = {
-            userId: parseInt(cookie.load('userId')),
-            groupId: group._id,
+            userId: cookie.load('userId'),
+            groupId: group.groupId,
             flag: 'L'
         }
         axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
-        axios.post(API_URL + '/groups/leave', data)
+        // axios.post(API_URL + '/groups/leave', data)
+        axios.post(API_URL + '/groups/acceptrejectinvite', data)
             .then(response => {
                 if (response.state === 200) {
                     console.log("Group left successfully");
@@ -153,9 +155,10 @@ class MyGroups extends Component {
 
     // Remove Invite and add to group
     acceptInvite = (group) => {
+        // console.log("[][][][][][]pending invites[][][][][][", this.state.pendingInvites)
         const data = {
-            userId: parseInt(cookie.load('userId')),
-            groupId: group._id,
+            userId: cookie.load('userId'),
+            groupId: group.groupId,
             flag: 'A'
         }
         axios.defaults.headers.common["authorization"] = cookie.load('token')
@@ -170,11 +173,8 @@ class MyGroups extends Component {
             }).catch(e => {
                 console.log(e);
             })
-
         const newPendingInvites = this.state.pendingInvites.filter((invite) => {
-            // return group != invite.GROUP_ID
-            // return invite.GROUP_ID != group.GROUP_ID
-            return group._id != invite._id
+            return group.groupId != invite._id
         });
 
         const emptyInvitesFlag = newPendingInvites.length == 0 ? true : false;

@@ -214,6 +214,7 @@ router.get('/groupdetails/:groupId', checkAuth, async (req, res) => {
 });
 
 router.post('/acceptrejectinvite', checkAuth, (req, res) => {
+    console.log("======acceptRejectInvite=====", req.body)
     const groupId = req.body.groupId;
     const userId = req.body.userId;
     const flag = req.body.flag; //A: accept invite, R: reject invite
@@ -430,7 +431,7 @@ router.get('/groupexpenses/:groupId', checkAuth, async (req, res) => {
 router.post('/leave', checkAuth, async (req, res) => {
     const groupId = req.body.groupId;
     const userId = req.body.userId;
-
+    console.log("=====req====", req.body)
     try {
         let groupSchemaDoc = await groupSchema.findOne(
             {
@@ -441,10 +442,11 @@ router.post('/leave', checkAuth, async (req, res) => {
                 groupBalances: 1
             }
         )
-
+        console.log("=====group leave group schema doc======", groupSchemaDoc)
         let groupBalanceIndex = getIndexOfGroupBalances(userId, groupSchemaDoc.groupBalances)
+        console.log("groupbalancesindex", groupBalanceIndex)
 
-        if (groupSchemaDoc.groupBalances[groupBalanceIndex].amount !== 0) {
+        if ( groupBalanceIndex!== -1 && groupSchemaDoc.groupBalances[groupBalanceIndex].amount !== 0) {
             res.status(400).send("Please settle up your debts first")
         } else {
             // { $pull: { invitedUsers: req.body.userId }

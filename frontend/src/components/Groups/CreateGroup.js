@@ -27,7 +27,7 @@ class CreateGroup extends Component {
     }
     componentWillMount() {
         this.setState({
-            userId: parseInt(cookie.load('userId'))
+            userId: cookie.load('userId')
         })
     }
 
@@ -90,7 +90,7 @@ class CreateGroup extends Component {
             });
             acceptedUsersList.push(cookie.load('userId'))
 
-            formData.append("userId", parseInt(cookie.load('userId')));
+            formData.append("userId", cookie.load('userId'));
             formData.append("groupName", this.state.groupName);
             // formData.append("groupMembers", this.state.groupMembers);
             formData.append("invitedUsers", userIdList.join());

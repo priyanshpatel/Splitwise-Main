@@ -11,11 +11,13 @@ import PropTypes from 'prop-types';
 class AcceptedGroups extends Component {
     constructor(props) {
         super(props);
+        // console.log("this.props",this.props.data)
         this.state = {
             groupName: this.props.data.groupName,
             groupId: this.props.data._id,
             inviteFlag: this.props.data.inviteFlag
         }
+        // console.log("this.state", this.state)
     }
 
     componentDidMount() {

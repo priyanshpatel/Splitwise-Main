@@ -78,7 +78,7 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         console.log("group created successfully", response)
         const groupId = response._id
         console.log("-----------------------------------------------------------");
-        
+
         let invitedUsersArr = req.body.invitedUsers.split(',')
         // req.body.invitedUsers.forEach((element) => {
         //     console.log(element)
@@ -164,16 +164,50 @@ router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req,
     })
 });
 
-router.get('/groupdetails/:groupId', checkAuth, (req, res) => {
+router.get('/groupdetails/:groupId', checkAuth, async (req, res) => {
     const groupId = req.params.groupId;
+    let groupBalancesList = []
+    let groupBalanceObj = {}
+    // groupSchema.findOne({ _id: req.params.groupId }).then(doc => {
+    //     console.log(doc)
+    //     let docCopy = doc
+    //     for (const element of doc.groupBalances) {
+    //         groupBalanceObj = {}
+    //         groupBalanceObj = element
 
-    groupSchema.findOne({ _id: req.params.groupId }).then(doc => {
+    //         userSchema.findOne({ _id: element.userId}, {userName: 1}).then( userDoc => {
+    //             groupBalanceObj.userName = userDoc.userName
+    //             groupBalancesList.push(groupBalanceObj)
+    //         })
+    //       }
+    //       docCopy.groupBalances = groupBalancesList
+
+    //     res.status(200).send(docCopy)
+    // }).catch(error => {
+    //     console.log("Error while gettting group details", error)
+    //     res.status(500).send(error)
+    // })
+    try {
+        const doc = await groupSchema.findOne({ _id: req.params.groupId })
         console.log(doc)
-        res.status(200).send(doc)
-    }).catch(error => {
+        let docCopy = doc.toObject()
+        let groupBalanceObj = {}
+        for (const element of doc.groupBalances) {
+            groupBalanceObj = {}
+            groupBalanceObj = element.toObject()
+
+            const userDoc = await userSchema.findOne({ _id: element.userId }, { userName: 1 })
+            groupBalanceObj["userName"] = userDoc.userName
+            groupBalancesList.push(groupBalanceObj)
+
+        }
+        docCopy.groupBalances = groupBalancesList
+
+        res.status(200).send(docCopy)
+    } catch (error) {
         console.log("Error while gettting group details", error)
         res.status(500).send(error)
-    })
+    }
 });
 
 router.post('/acceptrejectinvite', checkAuth, (req, res) => {

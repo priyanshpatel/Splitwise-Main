@@ -7,7 +7,7 @@ import Signup from './Signup/Signup';
 import Dashboard from './Dashboard/Dashboard';
 // import Profile from './Profile/Profile';
 // import CreateGroup from './Groups/CreateGroup';
-// import MyGroups from './Groups/MyGroups';
+import MyGroups from './Groups/MyGroups';
 // import GroupPage from './Groups/GroupPage';
 // import RecentActivity from './RecentActivity/RecentActivity';
 //Create a Main Component
@@ -22,7 +22,7 @@ class Main extends Component {
                 {<Route path="/dashboard" component={Dashboard}/>}
                 {/* {<Route path="/profile" component={Profile} />} */}
                 {/* {<Route path="/creategroup" component={CreateGroup} />} */}
-                {/* {<Route path="/mygroups" component={MyGroups} />} */}
+                {<Route path="/mygroups" component={MyGroups} />}
                 {/* {<Route exact path="/grouppage/:groupid" component={GroupPage}/>} */}
                 {/* {<Route path="/recentactivity" component={RecentActivity} />} */}
             </div>

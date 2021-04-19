@@ -18,7 +18,7 @@ const transactionSchema = require('../models/transaction');
 const debtSchema = require('../models/debts');
 const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 
-router.get('/total_dashboard/:userId', async (req, res) => {
+router.get('/total_dashboard/:userId', checkAuth, async (req, res) => {
     const userId = req.params.userId
     let totalYouOwe = 0
     let totalYouAreOwed = 0
@@ -73,7 +73,7 @@ router.get('/total_dashboard/:userId', async (req, res) => {
     }
 });
 
-router.get('/you_are_owed/:userId', async (req, res) => {
+router.get('/you_are_owed/:userId', checkAuth, async (req, res) => {
     const userId = req.params.userId
     let resObj = {}
     let resArray = []
@@ -120,7 +120,7 @@ router.get('/you_are_owed/:userId', async (req, res) => {
     }
 });
 
-router.get('/you_owe/:userId', async (req, res) => {
+router.get('/you_owe/:userId', checkAuth, async (req, res) => {
     const userId = req.params.userId
     let resObj = {}
     let resArray = []

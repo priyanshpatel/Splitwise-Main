@@ -4,6 +4,8 @@ const router = express.Router();
 var mongoose = require( '../config/db_config' );
 const jwt = require('jsonwebtoken');
 var {secret} = require('../config/config');
+let { auth, checkAuth } = require( '../config/passport' )
+auth();
 
 var bcrypt = require( 'bcrypt' );
 const userSchema = require( '../models/users' );
@@ -35,7 +37,7 @@ router.post('/', ( req, res ) => {
         console.log( "Signup successful", token )
         // callback( null,
         //     response._id )
-        res.status( 200 ).send( response )
+        res.status( 200 ).send( token )
     } ).catch( error => {
         //console.log( "Error", error )
         // callback( error, null )

@@ -49,9 +49,9 @@ class Dashboard extends Component {
         }
 
         console.log(data);
-
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
-        axios.get(API_URL+'/dashboard/total_dashboard/' + cookie.load('userId'))
+        axios.get(API_URL + '/dashboard/total_dashboard/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log(response.data);
@@ -103,8 +103,9 @@ class Dashboard extends Component {
         //     }).catch(e => {
         //         console.log(e);
         //     })
-
-        axios.get(API_URL+'/dashboard/you_are_owed/' + cookie.load('userId'))
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
+        axios.defaults.withCredentials = true;
+        axios.get(API_URL + '/dashboard/you_are_owed/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log(response.data);
@@ -116,7 +117,9 @@ class Dashboard extends Component {
                 console.log(e);
             })
 
-        axios.get(API_URL+'/dashboard/you_owe/' + cookie.load('userId'))
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
+        axios.defaults.withCredentials = true;
+        axios.get(API_URL + '/dashboard/you_owe/' + cookie.load('userId'))
             .then(response => {
                 if (response.status === 200) {
                     console.log("[[[[[[[[[inside if]]]]]]]]]]");

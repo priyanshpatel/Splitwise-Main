@@ -28,6 +28,25 @@ const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 // let expenseList = []
 // let debtList = []
 
+router.post('/addcomment', async (req, res) => {
+    try{
+    let expenseSchemaDoc = await expenseSchema.findOne({_id: req.body.expenseId},{comments: 1})
+    let userSchemaDoc = await userSchema.findOne({_id: req.body.AddedByUserId}, {userName: 1})
+    let newComment = {
+        description: req.body.description,
+        AddedByUserId: req.body.AddedByUserId,
+        AddedByUserName: userSchemaDoc.userName,
+    }
+    expenseSchemaDoc.comments.push(newComment)
+    let expenseSchemaDocSave = await expenseSchemaDoc.save()
+    console.log(expenseSchemaDocSave)
+    res.status(200).send(expenseSchemaDocSave)
+} catch(error) {
+    console.log("Error while adding comment", error)
+    res.status(500).send(error)
+}
+})
+
 router.post('/add', async (req, res) => {
     let transaction = null
     let expId = null

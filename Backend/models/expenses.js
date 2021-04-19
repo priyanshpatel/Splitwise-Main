@@ -11,8 +11,8 @@ let Schema = mongoose.Schema;
 
 let commentSchema = new Schema({
     description: String,
-    expenseId: mongoose.Schema.Types.ObjectId,
     AddedByUserId: mongoose.Schema.Types.ObjectId,
+    AddedByUserName: String,
     createdAt: { type: String, timestamps: true },
 })
 

@@ -35,6 +35,7 @@ class MyGroups extends Component {
         })
     }
     componentDidMount() {
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
         axios.get(API_URL + '/groups/mygroupspending/' + cookie.load('userId'))
             .then(response => {
@@ -58,9 +59,11 @@ class MyGroups extends Component {
                 console.log("inside catch");
                 console.log(e);
             })
-
+            axios.defaults.headers.common["authorization"] = cookie.load('token')
+            axios.defaults.withCredentials = true;
         axios.get(API_URL + '/groups/mygroups/' + cookie.load('userId'))
             .then(response => {
+                console.log("Accepted groups called", response)
                 if (response.status === 200) {
                     this.setState({
                         //MsgFlag: false,
@@ -75,7 +78,7 @@ class MyGroups extends Component {
                     //});
                 }
             }).catch(e => {
-                console.log("inside catch");
+                console.log("Error getting accepted groups", e);
                 console.log(e);
             })
     }
@@ -93,6 +96,7 @@ class MyGroups extends Component {
             groupId: group._id,
             flag: 'R'
         }
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
         axios.post(API_URL + '/groups/acceptrejectinvite', data)
             .then(response => {
@@ -121,6 +125,7 @@ class MyGroups extends Component {
             groupId: group._id,
             flag: 'L'
         }
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
         axios.post(API_URL + '/groups/leave', data)
             .then(response => {
@@ -153,6 +158,7 @@ class MyGroups extends Component {
             groupId: group._id,
             flag: 'A'
         }
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
         axios.post(API_URL+ '/groups/acceptrejectinvite', data)
             .then(response => {

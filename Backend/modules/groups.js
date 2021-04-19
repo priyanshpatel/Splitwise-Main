@@ -46,6 +46,7 @@ const uploadGroupImage = multer({
 
 // router.post('/create', (req, res) => {
 router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req, res) => {
+    console.log(req.body)
     const userID = req.body.userID
     const groupName = req.body.groupName
     // const groupPicture = req.body.groupPicture
@@ -66,9 +67,9 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         groupName: req.body.groupName,
         createdBy: req.body.createdBy,
         createDate: ts,
-        groupPicture: req.body.groupPicture,
+        groupPicture: imagePath,
         acceptedUsers: req.body.acceptedUsers,
-        invitedUsers: req.body.invitedUsers
+        invitedUsers: req.body.invitedUsers.split(',')
     })
     console.log("][][][][][][][][]group schema][][][][][][][][][][][][");
     console.log(group)
@@ -77,13 +78,12 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         console.log("group created successfully", response)
         const groupId = response._id
         console.log("-----------------------------------------------------------");
-        // console.log(typeof groupId);
-        // const invitedUsers = userSchema.find({ id: { $in: req.body.invitedUsers } });
-        let invitedUsersArr = []
-        req.body.invitedUsers.forEach((element) => {
-            console.log(element)
-            invitedUsersArr.push(element)
-        })
+        
+        let invitedUsersArr = req.body.invitedUsers.split(',')
+        // req.body.invitedUsers.forEach((element) => {
+        //     console.log(element)
+        //     invitedUsersArr.push(element)
+        // })
 
         // const invitedUsers = () => { return userSchema.find({ _id: { $in: invitedUsersArr } }) };
         userSchema.find({ _id: { $in: invitedUsersArr } })
@@ -105,9 +105,12 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
             })
 
         let acceptedUsersArr = []
-        req.body.acceptedUsers.forEach((element) => {
-            acceptedUsersArr.push(element)
-        })
+        acceptedUsersArr.push(req.body.acceptedUsers)
+        // let acceptedUsersArr = req.body.acceptedUsers.join()
+
+        // req.body.acceptedUsers.forEach((element) => {
+        //     acceptedUsersArr.push(element)
+        // })
 
         userSchema.find({ _id: { $in: acceptedUsersArr } })
             .then(response => {
@@ -130,7 +133,7 @@ router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req,
         //console.log( "Error", error )
         // callback( error, null )
         if (error.code == 11000) {
-            res.status(400).json({ errorMessage: "Group name already exists" })
+            res.status(201).json({ errorMessage: "Group name already exists" })
         } else {
             console.log(error);
             res.status(500).json(error)
@@ -173,7 +176,7 @@ router.get('/groupdetails/:groupId', checkAuth, (req, res) => {
     })
 });
 
-router.post('/acceptrejectinvite', (req, res) => {
+router.post('/acceptrejectinvite', checkAuth, (req, res) => {
     const groupId = req.body.groupId;
     const userId = req.body.userId;
     const flag = req.body.flag; //A: accept invite, R: reject invite
@@ -236,7 +239,7 @@ router.post('/acceptrejectinvite', (req, res) => {
     }
 })
 
-router.get('/mygroupspending/:userId', (req, res) => {
+router.get('/mygroupspending/:userId', checkAuth, (req, res) => {
     let invitedGroups = []
     userSchema.findOne({ _id: req.params.userId }).then(doc => {
         if (doc != null) {
@@ -263,7 +266,7 @@ router.get('/mygroupspending/:userId', (req, res) => {
 });
 
 
-router.get('/mygroups/:userId', (req, res) => {
+router.get('/mygroups/:userId', checkAuth, (req, res) => {
     let acceptedGroups = []
     userSchema.findOne({ _id: req.params.userId }).then(doc => {
         if (doc != null) {
@@ -290,7 +293,7 @@ router.get('/mygroups/:userId', (req, res) => {
     })
 });
 
-router.get('/search/users', (req, res) => {
+router.get('/search/users', checkAuth, (req, res) => {
     const userInput = req.query.keyword
     userSchema.find(
         {
@@ -306,6 +309,10 @@ router.get('/search/users', (req, res) => {
                     _id: { $ne: req.query.userId }
                 }
             ]
+        },
+        {
+            userEmail: 1,
+            userName: 1
         }
     ).then(doc => { res.status(200).send(doc) }
     ).catch(error => {
@@ -314,7 +321,7 @@ router.get('/search/users', (req, res) => {
     })
 });
 
-router.get('/search/groups/:userId', async (req, res) => {
+router.get('/search/groups/:userId', checkAuth, async (req, res) => {
     const userId = req.params.userId
     const userInput = req.query.keyword
     try {
@@ -336,7 +343,7 @@ router.get('/search/groups/:userId', async (req, res) => {
     }
 });
 
-router.get('/groupexpenses/:groupId', async (req, res) => {
+router.get('/groupexpenses/:groupId', checkAuth, async (req, res) => {
     const groupId = req.params.groupId
     let resArray = []
     // let resObj = {}
@@ -383,7 +390,7 @@ router.get('/groupexpenses/:groupId', async (req, res) => {
     // const groupExpenseQuery = "SELECT E.*, U.USER_NAME, (SELECT S.USER_NAME FROM USERS S WHERE S.USER_ID = E.SETTLED_WITH_USER_ID) AS SETTLED_WITH_USER_NAME FROM EXPENSES E, USERS U WHERE U.USER_ID = E.PAID_BY_USER_ID AND E.GROUP_ID = " + groupID + " ORDER BY EXP_ID DESC"
 });
 
-router.post('/leave', async (req, res) => {
+router.post('/leave', checkAuth, async (req, res) => {
     const groupId = req.body.groupId;
     const userId = req.body.userId;
 

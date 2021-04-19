@@ -44,7 +44,6 @@ class EditGroup extends Component {
     }
 
     handleSubmit = (e) => {
-        console.log("=====edit group======", this.state)
         e.preventDefault();
         let formData = new FormData();
         if (this.state.imageUpdateFlag) {
@@ -70,14 +69,15 @@ class EditGroup extends Component {
                 //     updateFlag: true,
                 //     Msg: "Profile successfully updated"
                 // })
-                if (response.state === 200) {
+                if (response.status === 200) {
+                    console.log("inside 200", response)
                     this.setState({
                         authFlag: true,
                         updateFlag: true,
                         Msg: "Profile successfully updated"
                     })
                     window.location.reload()
-                } else if (response.state === 201) {
+                } else if (response.status === 201) {
                     this.setState({
                         MsgFlag: true,
                         Msg: "Group name already exists"

@@ -7,15 +7,15 @@ import axios from 'axios';
 import AsyncSelect from "react-select/async";
 import PropTypes from 'prop-types';
 // import { Button } from 'semantic-ui-react'
-import config from "../../config/config";
+import API_URL from "../../config/config";
 
 class AddExpense extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            GROUP_NAME: this.props.data.GROUP_NAME,
-            GROUP_ID: this.props.data.GROUP_ID,
-            userID: this.props.data.userID,
+            groupName: this.props.data.groupName,
+            groupId: this.props.data.groupId,
+            userId: this.props.data.userId,
             groupExpenses: this.props.data.groupExpenses,
             groupBalances: this.props.data.groupBalances,
             addExpensePopUp: this.props.data.addExpensePopUp,
@@ -57,14 +57,14 @@ class AddExpense extends Component {
             const data = {
                 description: this.state.description,
                 amount: this.state.amount,
-                groupID: this.state.GROUP_ID,
-                userID: this.state.userID,
+                groupId: this.state.groupId,
+                userId: this.state.userId,
                 currency: '$'
             }
 
             axios.defaults.headers.common["authorization"] = cookie.load('token')
             axios.defaults.withCredentials = true;
-            axios.post(config.API_URL + '/expenses/add', data)
+            axios.post(API_URL + '/expenses/add', data)
                 .then(response => {
                     if (response.status === 200) {
                         window.location.reload()
@@ -95,7 +95,7 @@ class AddExpense extends Component {
                 </div>
                 <div class="row">
                     <div class="col-12">
-                        <h6>With <strong>you</strong> and all of <strong>{this.state.GROUP_NAME}</strong></h6>
+                        <h6>With <strong>you</strong> and all of <strong>{this.state.groupName}</strong></h6>
                         <hr></hr>
                     </div>
                 </div>

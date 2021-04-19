@@ -30,8 +30,10 @@ let userSignUpAction = (data) => (dispatch) => {
     axios
         .post(API_URL + '/signup', data)
         .then((response) => {
+            console.log("Sign upppppp", response)
             if (response.status === 200) {
-                let decoded = jwt_decode(response.data.toString().split(' ')[1])
+                console.log("insideee succceessss")
+                let decoded = jwt_decode(response.data.toString())
                 console.log("decoded", decoded)
 
                 cookie.save('token', response.data, { path: '/' })
@@ -46,6 +48,7 @@ let userSignUpAction = (data) => (dispatch) => {
 
         })
         .catch((err) => {
+            console.log("insiddeeee catchhhccchhh", err)
             dispatch(errorUser(err, data))
 
         });

@@ -37,7 +37,7 @@ router.post('/', ( req, res ) => {
         console.log( "Signup successful", token )
         // callback( null,
         //     response._id )
-        res.status( 200 ).send( token )
+        res.status( 200 ).send( "Bearer " + token )
     } ).catch( error => {
         //console.log( "Error", error )
         // callback( error, null )

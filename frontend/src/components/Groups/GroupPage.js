@@ -11,7 +11,8 @@ import Modal from 'react-modal';
 import AddExpense from "./AddExpense"
 import API_URL from "../../config/config";
 import EditGroup from "./EditGroup"
-
+import { Accordion, Card } from 'react-bootstrap';
+import { FaTimes } from 'react-icons/fa'
 
 const customStyles = {
     content: {
@@ -119,6 +120,26 @@ class GroupPage extends Component {
         })
     }
 
+    commentChangeHandler = (e) => {
+        this.setState({
+            comment: e.target.value
+        })
+    }
+
+    addComment = (expense) => {
+        console.log("++++inside add comment++++", expense)
+        // e.preventDefault();
+        if (this.state.comment == null){
+            //Write code here
+        } else {
+            const data = {
+                description: this.state.comment,
+                AddedByUserId: this.state.userId,
+                //expenseId: 
+            }
+        }
+    }
+
     render() {
         // const moment = require('moment')
         let redirectVar = null;
@@ -129,34 +150,127 @@ class GroupPage extends Component {
         let groupExpenses = <div>No expenses</div>;
         if (this.state.groupExpenses != null) {
             groupExpenses = this.state.groupExpenses.map((expense) => {
-                return <div class="card text-dark bg-light" style={{ width: '38rem' }}>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-7">
-                                <div class="row">
-                                    <div class="col-3">
-                                        <h6 class="card-title" style={{ paddingLeft: "15px", paddingTop: "15px", color: "#8a8f94" }}><strong><Moment format="MMM DD">{expense.createdAt}</Moment></strong></h6>
+                // return <div class="card text-dark bg-light" style={{ width: '38rem' }}>
+                //     <div class="card-body">
+                //         <div class="row">
+                //             <div class="col-7">
+                //                 <div class="row">
+                //                     <div class="col-3">
+                //                         <h6 class="card-title" style={{ paddingLeft: "15px", paddingTop: "15px", color: "#8a8f94" }}><strong><Moment format="MMM DD">{expense.createdAt}</Moment></strong></h6>
+                //                     </div>
+                //                     <div class="col-9">
+                //                         {expense.settleFlag == 'Y' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.settledWithUserName} settled up</strong></h6> : null}
+                //                         {expense.settleFlag == 'Y' && expense.settledWithUserId[0] == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.paidByUserName} settled up</strong></h6> : null}
+                //                         {expense.settleFlag == 'Y' && expense.settledWithUserId[0] != this.state.userId && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.paidByUserName} and {expense.settledWithUserName} settled up</strong></h6> : null}
+                //                         {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.description}</strong></h6> : null}
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //             <div class="col-5">
+                //                 <div class="row">
+                //                     {expense.settleFlag == 'N' && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{expense.paidByUserName + " Paid"}</strong></h6> : null}
+                //                     {expense.settleFlag == 'N' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{"You Paid"}</strong></h6> : null}
+                //                 </div>
+                //                 <div class="row">
+                //                     {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ textAlign: "right" }}><strong>{expense.currency + expense.amount}</strong></h6> : null}
+                //                 </div>
+                //             </div>
+                //         </div>
+                //     </div>
+                // </div>
+
+                return <Accordion style={{ width: '100%' }}>
+                    <Card>
+                        <Accordion.Toggle as={Card.Header} eventKey="0">
+                            <div class="row">
+                                <div class="col-7">
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <h6 class="card-title" style={{ paddingLeft: "15px", paddingTop: "15px", color: "#8a8f94" }}><strong><Moment format="MMM DD">{expense.createdAt}</Moment></strong></h6>
+                                        </div>
+                                        <div class="col-9">
+                                            {expense.settleFlag == 'Y' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.settledWithUserName} settled up</strong></h6> : null}
+                                            {expense.settleFlag == 'Y' && expense.settledWithUserId[0] == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.paidByUserName} settled up</strong></h6> : null}
+                                            {expense.settleFlag == 'Y' && expense.settledWithUserId[0] != this.state.userId && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.paidByUserName} and {expense.settledWithUserName} settled up</strong></h6> : null}
+                                            {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.description}</strong></h6> : null}
+                                        </div>
                                     </div>
-                                    <div class="col-9">
-                                        {expense.settleFlag == 'Y' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.settledWithUserName} settled up</strong></h6> : null}
-                                        {expense.settleFlag == 'Y' && expense.settledWithUserId[0] == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.paidByUserName} settled up</strong></h6> : null}
-                                        {expense.settleFlag == 'Y' && expense.settledWithUserId[0] != this.state.userId && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.paidByUserName} and {expense.settledWithUserName} settled up</strong></h6> : null}
-                                        {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.description}</strong></h6> : null}
+                                </div>
+                                <div class="col-5">
+                                    <div class="row">
+                                        {expense.settleFlag == 'N' && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{expense.paidByUserName + " Paid"}</strong></h6> : null}
+                                        {expense.settleFlag == 'N' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{"You Paid"}</strong></h6> : null}
+                                    </div>
+                                    <div class="row">
+                                        {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ textAlign: "right" }}><strong>{expense.currency + expense.amount}</strong></h6> : null}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-5">
-                                <div class="row">
-                                    {expense.settleFlag == 'N' && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{expense.paidByUserName + " Paid"}</strong></h6> : null}
-                                    {expense.settleFlag == 'N' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{"You Paid"}</strong></h6> : null}
+                        </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="0">
+                            <Card.Body>
+                                <div
+                                    className= "task"
+                                    // onDoubleClick={() => onToggle(task.id)}
+                                >
+                                    <h3>
+                                        {/* {task.text}{' '} */}
+                                        Sample Comment
+                                        <FaTimes
+                                            style={{ color: 'red', cursor: 'pointer' }}
+                                            // onClick={() => onDelete(task.id)}
+                                        />
+                                    </h3>
+                                    <p>today</p>
+                                    <hr/>
                                 </div>
-                                <div class="row">
-                                    {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ textAlign: "right" }}><strong>{expense.currency + expense.amount}</strong></h6> : null}
+                                <div
+                                    className= "task"
+                                    // onDoubleClick={() => onToggle(task.id)}
+                                >
+                                    <h3>
+                                        {/* {task.text}{' '} */}
+                                        Sample Comment
+                                        <FaTimes
+                                            style={{ color: 'red', cursor: 'pointer' }}
+                                            // onClick={() => onDelete(task.id)}
+                                        />
+                                    </h3>
+                                    <p>today</p>
+                                    <hr/>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+                                {/* <form method="post"> */}
+                                    <div class="row">
+                                        <div class="col-9">
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <strong>Add a comment:</strong>
+                                                    {/* <div class="mb-3">
+                                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" style={{ fontSize: "1.2em", width: "700px" }}></textarea>
+                                                </div> */}
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <div class="mb-3">
+                                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" onChange={this.commentChangeHandler} style={{ fontSize: "1.2em", width: "500px" }}></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-2">
+                                                    {/* <button>Post</button> */}
+                                                    <button class="btn btn-primary" type="submit" style={{ backgroundColor: "#ed752f", border: "none" }} onClick={this.addComment.bind(this, this.state)}><strong>Post</strong></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {/* </form> */}
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                </Accordion>
             })
         }
 
@@ -168,7 +282,7 @@ class GroupPage extends Component {
                 return <div class="card text-dark" style={{ width: '15rem' }}>
                     <div class="card-body">
                         {expense.userId != this.state.userId ? <h6 class="card-title"><strong>{expense.userName}</strong></h6> : <h6 class="card-title"><strong>{"Your balance:"}</strong></h6>}
-                        <h6 class="card-title"><strong>{expense.CURRENCY}</strong></h6>
+                        <h6 class="card-title"><strong>{expense.currency}</strong></h6>
                         {expense.balance < 0 ? <h6 class="card-title" style={{ color: "#ed752f" }}><strong>{"Owes $" + Math.abs(expense.balance)}</strong></h6> : null}
                         {expense.balance > 0 ? <h6 class="card-title" style={{ color: "#59cfa7" }}><strong>{"Gets back $" + expense.balance}</strong></h6> : null}
                         {expense.balance == 0 ? <h6 class="card-title" style={{ color: "#59cfa7" }}><strong>{"Balances settled up"}</strong></h6> : null}
@@ -186,10 +300,10 @@ class GroupPage extends Component {
                 <br />
                 <div class="container">
                     <div class="row">
-                        <div class="col-2">
+                        {/* <div class="col-2">
 
-                        </div>
-                        <div class="col-4">
+                        </div> */}
+                        <div class="col-6">
                             <h3><strong>{this.state.groupName}  <button class="btn btn-primary" style={{ backgroundColor: "#59cfa7", border: "none" }} onClick={this.toggleEditGroup}><i class="fa fa-edit"></i></button></strong></h3><br />
                         </div>
                         <div class="col-4">
@@ -201,14 +315,17 @@ class GroupPage extends Component {
                         <hr></hr>
                     </div>
                     <div class="row">
-                        <div class="col-2">
+                        {/* <div class="col-2">
 
-                        </div>
-                        <div class="col-4">
+                        </div> */}
+                        <div class="col-8">
                             {groupExpenses}
                             <br></br>
                         </div>
-                        <div class="col-3">
+                        {/* <div class="col-3">
+
+                        </div> */}
+                        <div class="col-1">
 
                         </div>
                         <div class="col-3">

@@ -42,7 +42,7 @@ const uploadGroupImage = multer({
     },
 });
 
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', checkAuth, async (req, res) => {
     const userId = req.params.userId
     try {
         let userSchemaDoc = await userSchema.findOne(
@@ -56,7 +56,7 @@ router.get('/:userId', async (req, res) => {
     }
 });
 
-router.post('/update', uploadGroupImage.single("profilePicture"), async (req, res) => {
+router.post('/update', checkAuth, uploadGroupImage.single("profilePicture"), async (req, res) => {
     const userId = req.body.userId;
     const userName = req.body.userName;
     const userEmail = req.body.userEmail;
@@ -81,7 +81,8 @@ router.post('/update', uploadGroupImage.single("profilePicture"), async (req, re
                 phoneNumber: phoneNumber,
                 currency: currency,
                 timezone: timezone,
-                language: language
+                language: language,
+                profilePicture: imagePath
             }
         }
     )

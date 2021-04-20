@@ -13,6 +13,8 @@ import API_URL from "../../config/config";
 import EditGroup from "./EditGroup"
 import { Accordion, Card } from 'react-bootstrap';
 import { FaTimes } from 'react-icons/fa'
+import Comments from "./Comments";
+import NewComments from "./NewComments";
 
 const customStyles = {
     content: {
@@ -121,21 +123,47 @@ class GroupPage extends Component {
     }
 
     commentChangeHandler = (e) => {
-        this.setState({
-            comment: e.target.value
-        })
+        console.log("-------inside comment change handler--------", e)
+        // this.setState({
+        //     comment: e.target.value
+        // })
     }
 
-    addComment = (expense) => {
-        console.log("++++inside add comment++++", expense)
+    addComment = async (newCommentState) => {
+        // console.log(expense)
+        console.log("++++inside add comment++++", newCommentState)
         // e.preventDefault();
-        if (this.state.comment == null){
-            //Write code here
-        } else {
+        if (newCommentState.commentDescription != null) {
             const data = {
-                description: this.state.comment,
+                description: newCommentState.commentDescription,
                 AddedByUserId: this.state.userId,
-                //expenseId: 
+                expenseId: newCommentState.expenseId
+            }
+            console.log("data", data)
+            try {
+                axios.defaults.headers.common["authorization"] = cookie.load('token')
+                axios.defaults.withCredentials = true;
+
+                let response = await axios.post(API_URL + '/expenses/addcomment', data)
+
+                console.log("Comment Added Successfully", response.data)
+
+                let newGroupExpensesList = []
+                let newGroupExpensesObj = {}
+                for (let expense of this.state.groupExpenses) {
+                    newGroupExpensesObj = {}
+                    newGroupExpensesObj = expense
+                    if (expense.expenseId == newCommentState.expenseId) {
+                        newGroupExpensesObj.comments = response.data.comments
+                        console.log(newGroupExpensesObj)
+                    }
+                    newGroupExpensesList.push(newGroupExpensesObj)
+                }
+                this.setState({
+                    groupExpenses: newGroupExpensesList
+                })
+            } catch (error) {
+                console.log("Error while adding comment", error);
             }
         }
     }
@@ -150,38 +178,20 @@ class GroupPage extends Component {
         let groupExpenses = <div>No expenses</div>;
         if (this.state.groupExpenses != null) {
             groupExpenses = this.state.groupExpenses.map((expense) => {
-                // return <div class="card text-dark bg-light" style={{ width: '38rem' }}>
-                //     <div class="card-body">
-                //         <div class="row">
-                //             <div class="col-7">
-                //                 <div class="row">
-                //                     <div class="col-3">
-                //                         <h6 class="card-title" style={{ paddingLeft: "15px", paddingTop: "15px", color: "#8a8f94" }}><strong><Moment format="MMM DD">{expense.createdAt}</Moment></strong></h6>
-                //                     </div>
-                //                     <div class="col-9">
-                //                         {expense.settleFlag == 'Y' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.settledWithUserName} settled up</strong></h6> : null}
-                //                         {expense.settleFlag == 'Y' && expense.settledWithUserId[0] == this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>You and {expense.paidByUserName} settled up</strong></h6> : null}
-                //                         {expense.settleFlag == 'Y' && expense.settledWithUserId[0] != this.state.userId && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.paidByUserName} and {expense.settledWithUserName} settled up</strong></h6> : null}
-                //                         {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ paddingTop: "18px" }}><strong>{expense.description}</strong></h6> : null}
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //             <div class="col-5">
-                //                 <div class="row">
-                //                     {expense.settleFlag == 'N' && expense.paidByUserId != this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{expense.paidByUserName + " Paid"}</strong></h6> : null}
-                //                     {expense.settleFlag == 'N' && expense.paidByUserId == this.state.userId ? <h6 class="card-title" style={{ textAlign: "right", color: "#8a8f94" }}><strong>{"You Paid"}</strong></h6> : null}
-                //                 </div>
-                //                 <div class="row">
-                //                     {expense.settleFlag == 'N' ? <h6 class="card-title" style={{ textAlign: "right" }}><strong>{expense.currency + expense.amount}</strong></h6> : null}
-                //                 </div>
-                //             </div>
-                //         </div>
-                //     </div>
-                // </div>
+                console.log("EXPENSE", expense);
+                let comments = null
+                comments = expense.comments.map((comment) => {
+                    return (
+                        <Comments
+                            key={comment._id}
+                            commentDetails={comment}
+                            loggedInUserId={this.state.userId} />
+                    )
+                })
 
-                return <Accordion style={{ width: '100%' }}>
+                return (<Accordion style={{ width: '100%' }}>
                     <Card>
-                        <Accordion.Toggle as={Card.Header} eventKey="0">
+                        <Accordion.Toggle as={Card.Header} eventKey={expense.expenseId}>
                             <div class="row">
                                 <div class="col-7">
                                     <div class="row">
@@ -207,70 +217,19 @@ class GroupPage extends Component {
                                 </div>
                             </div>
                         </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="0">
+                        <Accordion.Collapse eventKey={expense.expenseId}>
                             <Card.Body>
-                                <div
-                                    className= "task"
-                                    // onDoubleClick={() => onToggle(task.id)}
-                                >
-                                    <h3>
-                                        {/* {task.text}{' '} */}
-                                        Sample Comment
-                                        <FaTimes
-                                            style={{ color: 'red', cursor: 'pointer' }}
-                                            // onClick={() => onDelete(task.id)}
-                                        />
-                                    </h3>
-                                    <p>today</p>
-                                    <hr/>
-                                </div>
-                                <div
-                                    className= "task"
-                                    // onDoubleClick={() => onToggle(task.id)}
-                                >
-                                    <h3>
-                                        {/* {task.text}{' '} */}
-                                        Sample Comment
-                                        <FaTimes
-                                            style={{ color: 'red', cursor: 'pointer' }}
-                                            // onClick={() => onDelete(task.id)}
-                                        />
-                                    </h3>
-                                    <p>today</p>
-                                    <hr/>
-                                </div>
+                                {comments}
+                                <NewComments
+                                    key={expense.expenseId}
+                                    expenseDetails={expense}
+                                    addComment={this.addComment}
+                                />
 
-                                {/* <form method="post"> */}
-                                    <div class="row">
-                                        <div class="col-9">
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <strong>Add a comment:</strong>
-                                                    {/* <div class="mb-3">
-                                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" style={{ fontSize: "1.2em", width: "700px" }}></textarea>
-                                                </div> */}
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-5">
-                                                    <div class="mb-3">
-                                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" onChange={this.commentChangeHandler} style={{ fontSize: "1.2em", width: "500px" }}></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-2">
-                                                    {/* <button>Post</button> */}
-                                                    <button class="btn btn-primary" type="submit" style={{ backgroundColor: "#ed752f", border: "none" }} onClick={this.addComment.bind(this, this.state)}><strong>Post</strong></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/* </form> */}
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
-                </Accordion>
+                </Accordion>)
             })
         }
 

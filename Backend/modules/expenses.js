@@ -28,7 +28,7 @@ const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 // let expenseList = []
 // let debtList = []
 
-router.post('/addcomment', async (req, res) => {
+router.post('/addcomment', checkAuth, async (req, res) => {
     try{
     let expenseSchemaDoc = await expenseSchema.findOne({_id: req.body.expenseId},{comments: 1})
     let userSchemaDoc = await userSchema.findOne({_id: req.body.AddedByUserId}, {userName: 1})

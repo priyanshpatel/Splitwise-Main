@@ -75,7 +75,7 @@
   cursor: pointer;
 }
 
-.task h3 {
+.task h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -404,6 +404,7 @@ router.get('/groupexpenses/:groupId', checkAuth, async (req, res) => {
             }
             // console.log(paidByUserName)
             let resObj = {}
+            resObj.expenseId = doc._id
             resObj.paidByUserId = paidByUserName._id
             resObj.paidByUserName = paidByUserName.userName
             resObj.description = doc.description

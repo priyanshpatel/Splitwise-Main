@@ -16,6 +16,28 @@ const debtSchema = require('../models/debts');
 const { response } = require('express');
 const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 
+router.get('/recent_activity/:userId/:groupId/:sortFlag', async (req, res) => {
+    const userId = req.params.userId
+    const groupId = req.params.groupId
+    const sortFlag = req.params.sortFlag
+
+    if (groupId == 0){
+        // All recent activities
+        let userSchemaDoc = await userSchema.findOne({ _id: userId }, {acceptedGroups: 1})
+        console.log(userSchemaDoc)
+
+        // let expenseSchemaDoc = await expenseSchema.find({})
+    } else {
+        // Recent activity of that particular group
+    }
+
+    if (sortFlag == 1){
+        // Ascending
+    } else {
+        //Descending
+    }
+})
+
 router.post('/settleup', async (req, res) => {
     let userId1 = req.body.userId1
     let userId2 = req.body.userId2

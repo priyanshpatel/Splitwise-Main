@@ -22,7 +22,10 @@ let expenseSchema = new Schema({
     description: String,
     amount: Number,
     groupId: String,
+    groupName: String,
     paidByUserId: String,
+    paidByUserName: String,
+    settledWithUserName: String,
     currency: String,
     settleFlag: { type: String, default: 'N' },
     settledWithUserId: [

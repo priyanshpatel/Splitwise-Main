@@ -3,9 +3,12 @@ let Schema = mongoose.Schema;
 
 let transactionSchema = new Schema({
     groupId: mongoose.Schema.Types.ObjectId,
+    groupName: String,
     expId: mongoose.Schema.Types.ObjectId,
     paidByUserId: mongoose.Schema.Types.ObjectId,
+    paidByUserName: String,
     paidForUserId: mongoose.Schema.Types.ObjectId,
+    paidForUserName: String,
     tranType: String,
     amount: {
         type: Number, validate: {

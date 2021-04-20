@@ -95,13 +95,18 @@ router.post('/add', async (req, res) => {
         comments: req.body.comments
     })
     try {
+        let userNameDoc = await userSchema.findOne({_id: req.body.userId}, {userName: 1})
+        expense.paidByUserName = userNameDoc.userName
+        let groupSchemaDoc = await groupSchema.findOne({_id: req.body.groupId})
+        expense.groupName = groupSchemaDoc.groupName
+
         let expenseResponse = await expense.save()
         console.log("Expense added successfully", expenseResponse)
         expId = expenseResponse._id
         expenseList.push(expId)
 
         // Find accpeted users and group balances from groups collection
-        let groupSchemaDoc = await groupSchema.findOne({ _id: req.body.groupId })
+        // let groupSchemaDoc = await groupSchema.findOne({ _id: req.body.groupId })
         console.log(groupSchemaDoc)
         groupMembers = groupSchemaDoc.acceptedUsers
         console.log(groupMembers)
@@ -120,7 +125,7 @@ router.post('/add', async (req, res) => {
             } else {
                 tranType = 6
             }
-
+            let groupMembersNameDoc = await userSchema.findOne({_id: member}, {userName: 1})
             // Create Transactions
             transaction = new transactionSchema({
                 groupId: req.body.groupId,
@@ -129,7 +134,10 @@ router.post('/add', async (req, res) => {
                 paidForUserId: member,
                 tranType: tranType,
                 amount: (req.body.amount / groupMembers.length).toFixed(2),
-                settleFlag: settleFlag
+                settleFlag: settleFlag,
+                groupName: groupSchemaDoc.groupName,
+                paidByUserName: userNameDoc.userName,
+                paidForUserName: groupMembersNameDoc.userName
             })
             let transactionResponse = await transaction.save()
             console.log("transaction added successfully ", transactionResponse)

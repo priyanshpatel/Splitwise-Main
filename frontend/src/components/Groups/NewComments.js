@@ -47,7 +47,7 @@ class NewComments extends Component {
                             <div class="row">
                                 <div class="col-5">
                                     <div class="mb-3" style={{ paddingLeft: "15px" }} >
-                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" value={this.state.comment} onChange={this.commentChangeHandler} style={{ fontSize: "1.2em", width: "500px" }}></textarea>
+                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" value={this.state.comment} onChange={this.commentChangeHandler} style={{ fontSize: "1.2em", width: "500px" }} required ></textarea>
                                     </div>
                                 </div>
                             </div>

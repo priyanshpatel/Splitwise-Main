@@ -168,6 +168,36 @@ class GroupPage extends Component {
         }
     }
 
+    deleteComment = async (args) => {
+        // console.log("-------deleteComment----------", args)
+        let newGroupExpensesList = []
+        let newGroupExpensesObj = {}
+
+        try {
+            axios.defaults.headers.common["authorization"] = cookie.load('token')
+            axios.defaults.withCredentials = true;
+
+            let response = await axios.post(API_URL + '/expenses/deletecomment', args)
+            // console.log("delete api response =>>>>>>>", response)
+
+            for (let expense of this.state.groupExpenses) {
+                newGroupExpensesObj = {}
+                newGroupExpensesObj = expense
+                if (expense.expenseId == args.expenseId) {
+                    // console.log("expense>>>>>>>>", expense)
+                    newGroupExpensesObj.comments = response.data.comments
+                }
+                newGroupExpensesList.push(newGroupExpensesObj)
+            }
+            this.setState({
+                groupExpenses: newGroupExpensesList
+            })
+
+        } catch (error) {
+            console.log("Error while deleteing comment", error)
+        }
+    }
+
     render() {
         // const moment = require('moment')
         let redirectVar = null;
@@ -185,7 +215,9 @@ class GroupPage extends Component {
                         <Comments
                             key={comment._id}
                             commentDetails={comment}
-                            loggedInUserId={this.state.userId} />
+                            expenseDetails={expense}
+                            loggedInUserId={this.state.userId}
+                            deleteComment={this.deleteComment} />
                     )
                 })
 

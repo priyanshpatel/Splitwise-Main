@@ -29,22 +29,51 @@ const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 // let debtList = []
 
 router.post('/addcomment', checkAuth, async (req, res) => {
-    try{
-    let expenseSchemaDoc = await expenseSchema.findOne({_id: req.body.expenseId},{comments: 1})
-    let userSchemaDoc = await userSchema.findOne({_id: req.body.AddedByUserId}, {userName: 1})
-    let newComment = {
-        description: req.body.description,
-        AddedByUserId: req.body.AddedByUserId,
-        AddedByUserName: userSchemaDoc.userName,
+    try {
+        let expenseSchemaDoc = await expenseSchema.findOne({ _id: req.body.expenseId }, { comments: 1 })
+        let userSchemaDoc = await userSchema.findOne({ _id: req.body.AddedByUserId }, { userName: 1 })
+        let newComment = {
+            description: req.body.description,
+            AddedByUserId: req.body.AddedByUserId,
+            AddedByUserName: userSchemaDoc.userName,
+        }
+        expenseSchemaDoc.comments.push(newComment)
+        let expenseSchemaDocSave = await expenseSchemaDoc.save()
+        console.log(expenseSchemaDocSave)
+        res.status(200).send(expenseSchemaDocSave)
+    } catch (error) {
+        console.log("Error while adding comment", error)
+        res.status(500).send(error)
     }
-    expenseSchemaDoc.comments.push(newComment)
-    let expenseSchemaDocSave = await expenseSchemaDoc.save()
-    console.log(expenseSchemaDocSave)
-    res.status(200).send(expenseSchemaDocSave)
-} catch(error) {
-    console.log("Error while adding comment", error)
-    res.status(500).send(error)
-}
+})
+
+router.post('/deletecomment', checkAuth, async (req, res) => {
+    try {
+        let commentSchemaResObj = {}
+        let commentSchemaResArr = []
+        let expenseSchemaDoc = await expenseSchema.findOne({ _id: req.body.expenseId }, { comments: 1 })
+        if (expenseSchemaDoc != null) {
+            let comments = expenseSchemaDoc.comments
+            commentSchemaResArr = []
+            for (const comment of comments) {
+                commentSchemaResObj = {}
+                if (comment._id != req.body.commentId) {
+                    commentSchemaResObj = comment
+                    commentSchemaResArr.push(commentSchemaResObj)
+                }
+            }
+            expenseSchemaDoc.comments = commentSchemaResArr
+        }
+        let expenseSchemaDocSave = await expenseSchemaDoc.save()
+        console.log(expenseSchemaDocSave)
+
+        // let expenseSchemaDocSave = await expenseSchemaDoc.save()
+        // console.log(expenseSchemaDocSave)
+        res.status(200).send(expenseSchemaDocSave)
+    } catch (error) {
+        console.log("Error while adding comment", error)
+        res.status(500).send(error)
+    }
 })
 
 router.post('/add', async (req, res) => {

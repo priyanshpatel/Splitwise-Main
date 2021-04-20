@@ -8,13 +8,23 @@ class Comments extends Component {
         // console.log("PPPPRRRROOOPPPS", this.props);
     }
 
+    deleteThisComment = async (e) => {
+        e.preventDefault()
+        let args = {
+            commentId: this.props.commentDetails._id,
+            expenseId: this.props.expenseDetails.expenseId
+        }
+        // console.log("delete this comment this.props>>>>>>>>", this.props)
+        await this.props.deleteComment(args)
+    }
+
     render() {
         let deleteButton = null;
         if (this.props.loggedInUserId == this.props.commentDetails.AddedByUserId) {
             deleteButton = (
                 <FaTimes
                     style={{ color: "red", cursor: "pointer" }}
-                // onClick={() => onDelete(task.id)}
+                    onClick={this.deleteThisComment}
                 />
             );
         }

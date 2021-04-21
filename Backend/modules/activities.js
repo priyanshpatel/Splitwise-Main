@@ -16,26 +16,68 @@ const debtSchema = require('../models/debts');
 const { response } = require('express');
 const getIndexOfGroupBalances = require('./getIndexOfGroupBalances')
 
-router.get('/recent_activity/:userId/:groupId/:sortFlag', async (req, res) => {
+router.get('/recent_activity/:userId/:groupId/:sortFlag', checkAuth, async (req, res) => {
     const userId = req.params.userId
     const groupId = req.params.groupId
     const sortFlag = req.params.sortFlag
 
-    if (groupId == 0){
-        // All recent activities
-        let userSchemaDoc = await userSchema.findOne({ _id: userId }, {acceptedGroups: 1})
-        console.log(userSchemaDoc)
+    let recentActivityObj = {}
+    let recentActivityList = []
+    let expenseSchemaDoc = null
+    let userSchemaDoc = null
 
-        // let expenseSchemaDoc = await expenseSchema.find({})
-    } else {
-        // Recent activity of that particular group
+    try {
+
+        if (groupId == 0) {
+            // All recent activities
+            userSchemaDoc = await userSchema.findOne({ _id: userId }, { acceptedGroups: 1 })
+            console.log(userSchemaDoc)
+
+            if (sortFlag == 1) {
+                //Ascending
+                expenseSchemaDoc = await expenseSchema.find(
+                    { groupId: { $in: userSchemaDoc.acceptedGroups } }
+                )
+            } else {
+                // Descending
+                expenseSchemaDoc = await expenseSchema.find(
+                    { groupId: { $in: userSchemaDoc.acceptedGroups } }
+                ).sort({ _id: -1 })
+            }
+
+        } else {
+            // Recent activity of that particular group
+            if (sortFlag == 1) {
+                //Ascending
+                expenseSchemaDoc = await expenseSchema.find(
+                    { groupId: groupId }
+                )
+                console.log(expenseSchemaDoc)
+            } else {
+                // Descending
+                expenseSchemaDoc = await expenseSchema.find(
+                    { groupId: groupId }
+                ).sort({ _id: -1 })
+            }
+        }
+        for (const expense of expenseSchemaDoc) {
+            recentActivityObj = {}
+            recentActivityObj.expenseId = expense._id
+            recentActivityObj.createdAt = expense.createdAt
+            if (expense.paidByUserId == userId) {
+                recentActivityObj.activityDescription = "You added " + expense.description + " in " + expense.groupName
+                recentActivityObj.expenseDescription = "You get back $ " + expense.paidByUserGetsBack
+            } else {
+                recentActivityObj.activityDescription = recentActivityObj.paidByUserName + " added " + expense.description + " in " + expense.groupName
+                recentActivityObj.expenseDescription = "You owe $ " + expense.eachUserOwes
+            }
+            recentActivityList.push(recentActivityObj)
+        }
+        res.status(200).send(recentActivityList)
+    } catch (error) {
+        res.status(500).send(error)
     }
 
-    if (sortFlag == 1){
-        // Ascending
-    } else {
-        //Descending
-    }
 })
 
 router.post('/settleup', async (req, res) => {

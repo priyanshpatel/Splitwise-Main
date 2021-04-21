@@ -99,6 +99,10 @@ router.post('/add', async (req, res) => {
         expense.paidByUserName = userNameDoc.userName
         let groupSchemaDoc = await groupSchema.findOne({_id: req.body.groupId})
         expense.groupName = groupSchemaDoc.groupName
+        groupMembers = groupSchemaDoc.acceptedUsers
+
+        expense.paidByUserGetsBack = (req.body.amount - (req.body.amount / groupMembers.length)).toFixed(2)
+        expense.eachUserOwes = (req.body.amount / groupMembers.length).toFixed(2)
 
         let expenseResponse = await expense.save()
         console.log("Expense added successfully", expenseResponse)
@@ -108,7 +112,7 @@ router.post('/add', async (req, res) => {
         // Find accpeted users and group balances from groups collection
         // let groupSchemaDoc = await groupSchema.findOne({ _id: req.body.groupId })
         console.log(groupSchemaDoc)
-        groupMembers = groupSchemaDoc.acceptedUsers
+        // groupMembers = groupSchemaDoc.acceptedUsers
         console.log(groupMembers)
         let groupBalances = groupSchemaDoc.groupBalances
 

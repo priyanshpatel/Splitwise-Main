@@ -27,6 +27,8 @@ let expenseSchema = new Schema({
     paidByUserName: String,
     settledWithUserName: String,
     currency: String,
+    paidByUserGetsBack: Number,
+    eachUserOwes: Number,
     settleFlag: { type: String, default: 'N' },
     settledWithUserId: [
         {

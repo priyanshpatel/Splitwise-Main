@@ -6,14 +6,14 @@ import Navbar from '../LandingPage/Navbar';
 import axios from 'axios';
 import AsyncSelect from "react-select/async";
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react'
-import config from "../../config.json";
+// import { Button } from 'semantic-ui-react'
+import API_URL from "../../config/config";
 
 class Settle extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userID: this.props.data.userID,
+            userId: this.props.data.userId,
             youOweList: this.props.data.youOweList,
             youAreOwedList: this.props.data.youAreOwedList,
             dropDownList: [],
@@ -21,13 +21,16 @@ class Settle extends Component {
             Msg: "",
             settleUserID: null
         }
+        console.log("Props>>>>>>>>>>>", this.props)
+        console.log("Sate>>>>>>>>>>>>>", this.state)
     }
 
     componentDidMount() {
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
         axios.defaults.withCredentials = true;
-        axios.get(config.API_URL+'/activities/settleup/dropdown/' + this.state.userID)
+        axios.get(API_URL + '/activities/settleup/dropdown/' + this.state.userId)
             .then(response => {
-                console.log(response.data);
+                console.log("Response>>>>>>>>>>", response.data);
                 if (response.status === 200) {
                     this.setState({
                         dropDownList: response.data
@@ -51,14 +54,15 @@ class Settle extends Component {
         e.preventDefault();
         if (!this.state.MsgFlag) {
             const data = {
-                userID1: this.state.userID,
-                userID2: this.state.settleUserID,
-                userID: this.state.userID
+                userId1: this.state.userId,
+                userId2: this.state.settleUserID,
+                userId: this.state.userId
             }
             console.log(data);
 
+            axios.defaults.headers.common["authorization"] = cookie.load('token')
             axios.defaults.withCredentials = true;
-            axios.post(config.API_URL+'/activities/settleup', data)
+            axios.post(API_URL + '/activities/settleup', data)
                 .then(response => {
                     console.log("=========Inside frontend===========");
                     console.log("Status Code: ", response.status);
@@ -86,11 +90,11 @@ class Settle extends Component {
         //         return (
         //             <option key={i} value={item.USER_ID}>{item.USER_NAME} ({item.USER_EMAIL})</option>
         //         )
-        
+
         let dropDownFill = this.state.dropDownList.length > 0
             && this.state.dropDownList.map((item, i) => {
                 return (
-                    <option key={i} value={item.USER_ID}>{item.USER_NAME_EMAIL}</option>
+                    <option key={i} value={item._id}>{item.userNameEmail}</option>
                 )
             }, this);
 

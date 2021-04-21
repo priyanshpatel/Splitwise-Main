@@ -80,7 +80,7 @@ router.get('/recent_activity/:userId/:groupId/:sortFlag', checkAuth, async (req,
 
 })
 
-router.post('/settleup', async (req, res) => {
+router.post('/settleup', checkAuth, async (req, res) => {
     let userId1 = req.body.userId1
     let userId2 = req.body.userId2
     let userId = req.body.userID
@@ -211,27 +211,44 @@ router.post('/settleup', async (req, res) => {
 
 })
 
-router.get('/settleup/dropdown/:userId', async (req, res) => {
+router.get('/settleup/dropdown/:userId', checkAuth, async (req, res) => {
     let debtSchemaDoc = null;
     let debtSchemaDoc1 = null;
     let userSchemaDoc = null;
     const userId = req.params.userId;
     let userIdArr = []
     let dropDownList = [];
-
+    console.log("userId>>>>>>>>>>>>", userId)
     try {
+
+        // $and: [
+        //     { userId1: userId1 },
+        //     { userId2: userId2 }
+        // ]
+        // _id: { $ne: req.query.userId }
+
         debtSchemaDoc = await debtSchema.find(
-            { userId1: userId },
-            { userId2: 1, _id: 0 }
+            {
+                $and: [
+                    { userId1: userId },
+                    { amount: { $ne: 0 } }
+                ]
+            }
         )
+        console.log("debtSchemaDoc>>>>>>>>>>", debtSchemaDoc)
         for (const debt of debtSchemaDoc) {
             userIdArr.push(debt.userId2)
         }
 
         debtSchemaDoc1 = await debtSchema.find(
-            { userId2: userId },
-            { userId2: 1, _id: 0 }
+            {
+                $and: [
+                    { userId1: userId },
+                    { amount: { $ne: 0 } }
+                ]
+            }
         )
+        console.log("debtSchemaDoc1>>>>>>>>>>", debtSchemaDoc)
         for (const debt of debtSchemaDoc1) {
             userIdArr.push(debt.userId1)
         }
@@ -244,7 +261,7 @@ router.get('/settleup/dropdown/:userId', async (req, res) => {
             dropDownList.push({
                 "_id": user._id,
                 "userName": user.userName,
-                "userEmail": user.Email,
+                "userEmail": user.userEmail,
                 "userNameEmail": user.userName + ' (' + user.userEmail + ')'
             })
         }

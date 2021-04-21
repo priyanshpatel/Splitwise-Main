@@ -76,7 +76,7 @@ router.post('/deletecomment', checkAuth, async (req, res) => {
     }
 })
 
-router.post('/add', async (req, res) => {
+router.post('/add', checkAuth, async (req, res) => {
     let transaction = null
     let expId = null
     let groupMembers = []

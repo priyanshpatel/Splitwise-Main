@@ -6,7 +6,7 @@ import Navbar from '../LandingPage/Navbar';
 import splitwise_logo from '../../images/splitwise_logo.png';
 import axios from 'axios';
 import Modal from 'react-modal';
-// import Settle from "./Settle";
+import Settle from "./Settle";
 import API_URL from "../../config/config";
 
 const customStyles = {
@@ -260,9 +260,9 @@ class Dashboard extends Component {
                                 {youAreOwedList.length < 1 ? <div class="alert alert-success" role="alert">You are not owed anything</div> : null}
                             </div>
                         </div>
-                        {/* <Modal style={customStyles} isOpen={this.state.settleUpPopUp} ariaHideApp={false}>
+                        <Modal style={customStyles} isOpen={this.state.settleUpPopUp} ariaHideApp={false}>
                             <Settle data={this.state} closePopUp={this.toggleSettleUp} />
-                        </Modal> */}
+                        </Modal>
                     </div>
                 </BrowserRouter>
             </div>

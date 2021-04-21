@@ -68,7 +68,7 @@ router.get('/recent_activity/:userId/:groupId/:sortFlag', checkAuth, async (req,
                 recentActivityObj.activityDescription = "You added " + expense.description + " in " + expense.groupName
                 recentActivityObj.expenseDescription = "You get back $ " + expense.paidByUserGetsBack
             } else {
-                recentActivityObj.activityDescription = recentActivityObj.paidByUserName + " added " + expense.description + " in " + expense.groupName
+                recentActivityObj.activityDescription = expense.paidByUserName + " added " + expense.description + " in " + expense.groupName
                 recentActivityObj.expenseDescription = "You owe $ " + expense.eachUserOwes
             }
             recentActivityList.push(recentActivityObj)

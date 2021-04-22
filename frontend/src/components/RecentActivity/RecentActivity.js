@@ -19,7 +19,7 @@ class RecentActivity extends Component {
             activityData: [],
             groups: [],
             offset: 0,
-            perPage: 5,
+            perPage: 2,
             pageCount: 0,
         }
     }
@@ -53,7 +53,7 @@ class RecentActivity extends Component {
                 if (response.status === 200) {
                     this.setState({
                         activityData: response.data,
-                        pageCount: Math.ceil( response.data.length / this.state.perPage )
+                        pageCount: Math.ceil(response.data.length / this.state.perPage)
                     })
                 }
             }).catch(e => {
@@ -73,7 +73,7 @@ class RecentActivity extends Component {
                 if (response.status === 200) {
                     this.setState({
                         activityData: response.data,
-                        pageCount: Math.ceil( response.data.length / this.state.perPage )
+                        pageCount: Math.ceil(response.data.length / this.state.perPage)
                     })
                 }
             }).catch(e => {
@@ -93,7 +93,7 @@ class RecentActivity extends Component {
                 if (response.status === 200) {
                     this.setState({
                         activityData: response.data,
-                        pageCount: Math.ceil( response.data.length / this.state.perPage )
+                        pageCount: Math.ceil(response.data.length / this.state.perPage)
                     })
                 }
             }).catch(e => {
@@ -101,11 +101,29 @@ class RecentActivity extends Component {
             })
     }
 
-    handlePageClick = ( e ) => {
-        this.setState( {
+    handlePageClick = (e) => {
+        this.setState({
             offset: this.state.perPage * e.selected,
-        } )
+        })
     };
+
+    handlePageSizeChange = (e) => {
+
+        axios.defaults.headers.common["authorization"] = cookie.load('token')
+        axios.defaults.withCredentials = true;
+        axios.get(API_URL + '/activities/recent_activity/' + cookie.load('userId') + '/' + this.state.groupSort + '/' + this.state.sort)
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        activityData: response.data,
+                        perPage: e.target.value,
+                        pageCount: Math.ceil(response.data.length / e.target.value)
+                    })
+                }
+            }).catch(e => {
+                console.log(e);
+            })
+    }
 
     render() {
         let dropDownGroups = this.state.groups.length > 0
@@ -118,7 +136,7 @@ class RecentActivity extends Component {
         let activityData = <div>You don't owe anything</div>
         if (this.state.activityData != null || this.state.activityData.length < 1) {
             // activityData = this.state.activityData.map((activity) => {
-                activityData = this.state.activityData.slice( this.state.offset, this.state.offset + this.state.perPage ).map((activity) => {
+            activityData = this.state.activityData.slice(this.state.offset, this.state.offset + this.state.perPage).map((activity) => {
                 return <div class="card text-dark bg-light" style={{ width: '81rem' }}>
                     <div class="card-body">
                         <h6 class="card-title"><strong>{activity.activityDescription}</strong></h6>
@@ -146,10 +164,19 @@ class RecentActivity extends Component {
                 </div>
                 <div class="container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-5">
                             <h2>Recent Activity</h2>
                         </div>
-                        <div class="col-3" style={{ textAlign: "right" }}>
+                        <div class="col-2" style={{ textAlign: "right" }}>
+                            <div class="input-group mb-3">
+                                <select class="form-select" style={{ fontWeight: "bold" }} aria-label="user select" onChange={this.handlePageSizeChange}>
+                                    <option selected value="2">Page Size: 2</option>
+                                    <option value="5">Page Size: 5</option>
+                                    <option value="10">Page Size: 10</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-2" style={{ textAlign: "right" }}>
                             <div class="input-group mb-3">
                                 <select class="form-select" style={{ fontWeight: "bold" }} aria-label="user select" onChange={this.handleSort}>
                                     <option selected value="2">Newest first</option>
@@ -157,7 +184,7 @@ class RecentActivity extends Component {
                                 </select>
                             </div>
                         </div>
-                        <div class="col-3" style={{ textAlign: "right" }}>
+                        <div class="col-2" style={{ textAlign: "right" }}>
                             <div class="input-group mb-3">
                                 <select class="form-select" style={{ fontWeight: "bold" }} aria-label="user select" onChange={this.handleGroupSort}>
                                     <option selected value="0">All groups</option>
@@ -173,21 +200,21 @@ class RecentActivity extends Component {
                             {activityData.length < 1 ? <div class="alert alert-success" role="alert">No activities</div> : null}
                         </div>
                     </div>
-                    <br/>
-                    <div class="row" style= {{width: "50%", margin: "auto", paddingLeft: "250px"}} >
-                    <ReactPaginate
-                                previousLabel={ "prev" }
-                                nextLabel={ "next" }
-                                breakLabel={ "..." }
-                                breakClassName={ "break-me" }
-                                pageCount={ pageCount }
-                                marginPagesDisplayed={ 2 }
-                                pageRangeDisplayed={ 5 }
-                                onPageChange={ this.handlePageClick }
-                                containerClassName={ "pagination" }
-                                subContainerClassName={ "pages pagination" }
-                                activeClassName={ "active" }
-                                />
+                    <br />
+                    <div class="row" style={{ width: "50%", margin: "auto", paddingLeft: "250px" }} >
+                        <ReactPaginate
+                            previousLabel={"prev"}
+                            nextLabel={"next"}
+                            breakLabel={"..."}
+                            breakClassName={"break-me"}
+                            pageCount={pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={"pagination"}
+                            subContainerClassName={"pages pagination"}
+                            activeClassName={"active"}
+                        />
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ const { secret } = require('../config/config');
 let { auth, checkAuth } = require('../config/passport')
 const mongoose = require('mongoose')
 const multer = require('multer');
+let kafka = require( '../kafka/client' );
 auth();
 
 const groupSchema = require('../models/groups');
@@ -43,60 +44,99 @@ const uploadGroupImage = multer({
 });
 
 router.get('/:userId', checkAuth, async (req, res) => {
-    const userId = req.params.userId
-    try {
-        let userSchemaDoc = await userSchema.findOne(
-            { _id: userId },
-            { invitedGroups: 0, acceptedGroups: 0, userPassword: 0, debts: 0, transaction: 0 }
-        )
-        res.status(200).send(userSchemaDoc)
-    } catch (error) {
-        console.log("error while getting user profile", error)
-        res.status(500).send(error)
-    }
+    // const userId = req.params.userId
+    // try {
+    //     let userSchemaDoc = await userSchema.findOne(
+    //         { _id: userId },
+    //         { invitedGroups: 0, acceptedGroups: 0, userPassword: 0, debts: 0, transaction: 0 }
+    //     )
+    //     res.status(200).send(userSchemaDoc)
+    // } catch (error) {
+    //     console.log("error while getting user profile", error)
+    //     res.status(500).send(error)
+    // }
+
+    kafka.make_request('viewProfile', req.params, function (err, results) {
+        console.log('in view profile results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(401).send("Error while getting user profile")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(401).send("Error while getting user profile")
+        }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+
+    });
 });
 
 router.post('/update', checkAuth, uploadGroupImage.single("profilePicture"), async (req, res) => {
-    const userId = req.body.userId;
-    const userName = req.body.userName;
-    const userEmail = req.body.userEmail;
-    const phoneNumber = req.body.phoneNumber;
-    const currency = req.body.currency;
-    const timezone = req.body.timezone;
-    const language = req.body.language;
 
-    let imagePath = null;
-    try{
-    if (req.file) {
-        imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    const payload = {
+        body: req.body,
+        file: req.file
     }
-    console.log("Inside update profile post");
+    kafka.make_request('updateProfile', payload, function (err, results) {
+        console.log('in view profile results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(201).send('Email ID already exists')
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(201).send('Email ID already exists')
+        }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+
+    });
+
+    // const userId = req.body.userId;
+    // const userName = req.body.userName;
+    // const userEmail = req.body.userEmail;
+    // const phoneNumber = req.body.phoneNumber;
+    // const currency = req.body.currency;
+    // const timezone = req.body.timezone;
+    // const language = req.body.language;
+
+    // let imagePath = null;
+    // try{
+    // if (req.file) {
+    //     imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    // }
+    // console.log("Inside update profile post");
     
-    let userSchemaUpd = await userSchema.updateOne(
-        { _id: userId},
-        {
-            $set: {
-                userName: userName,
-                userEmail: userEmail,
-                phoneNumber: phoneNumber,
-                currency: currency,
-                timezone: timezone,
-                language: language,
-                profilePicture: imagePath
-            }
-        }
-    )
+    // let userSchemaUpd = await userSchema.updateOne(
+    //     { _id: userId},
+    //     {
+    //         $set: {
+    //             userName: userName,
+    //             userEmail: userEmail,
+    //             phoneNumber: phoneNumber,
+    //             currency: currency,
+    //             timezone: timezone,
+    //             language: language,
+    //             profilePicture: imagePath
+    //         }
+    //     }
+    // )
 
-    console.log("Profile Updated", userSchemaUpd)
-    res.status(200).send(userSchemaUpd)
-    } catch(error){
-        console.log("error while updating profile", error)
-        if (error.errno == 1062) {
-            res.status(201).send('Email ID already exists');
-        } else {
-            res.status(500).send(error);
-        }
-    }
+    // console.log("Profile Updated", userSchemaUpd)
+    // res.status(200).send(userSchemaUpd)
+    // } catch(error){
+    //     console.log("error while updating profile", error)
+    //     if (error.errno == 1062) {
+    //         res.status(201).send('Email ID already exists');
+    //     } else {
+    //         res.status(500).send(error);
+    //     }
+    // }
 });
 
 module.exports = router;

@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 const { secret } = require('../config/config');
 let { auth, checkAuth } = require('../config/passport')
 const mongoose = require('mongoose')
+let kafka = require( '../kafka/client' );
 auth();
 
 const groupSchema = require('../models/groups');
@@ -46,387 +47,537 @@ const uploadGroupImage = multer({
 
 // router.post('/create', (req, res) => {
 router.post('/create', checkAuth, uploadGroupImage.single("groupPicture"), (req, res) => {
-    console.log(req.body)
-    const userID = req.body.userID
-    const groupName = req.body.groupName
-    // const groupPicture = req.body.groupPicture
-    const groupMembers = req.body.groupMembers
-    const ts = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const groupCount = 0;
-    let groupID = null;
-
-    let imagePath = null;
-    if (req.file) {
-        imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    const payload = {
+        body: req.body,
+        file: req.file
     }
+    kafka.make_request('createGroup', payload, function (err, results) {
+        console.log('in create group results');
 
-    console.log("[][][][][][][][]Request Body[][][][][][][][][][][")
-    console.log(req.body.acceptedUsers)
-
-    let group = new groupSchema({
-        groupName: req.body.groupName,
-        createdBy: req.body.createdBy,
-        createDate: ts,
-        groupPicture: imagePath,
-        acceptedUsers: req.body.acceptedUsers,
-        invitedUsers: req.body.invitedUsers.split(',')
-    })
-    console.log("][][][][][][][][]group schema][][][][][][][][][][][][");
-    console.log(group)
-
-    group.save().then(response => {
-        console.log("group created successfully", response)
-        const groupId = response._id
-        console.log("-----------------------------------------------------------");
-
-        let invitedUsersArr = req.body.invitedUsers.split(',')
-        // req.body.invitedUsers.forEach((element) => {
-        //     console.log(element)
-        //     invitedUsersArr.push(element)
-        // })
-
-        // const invitedUsers = () => { return userSchema.find({ _id: { $in: invitedUsersArr } }) };
-        userSchema.find({ _id: { $in: invitedUsersArr } })
-            .then(response => {
-                console.log("============invited users=================");
-                console.log(invitedUsersArr);
-
-                response.forEach(function (user) {
-                    console.log("=-=-=-=-=-=-=-=-=-=-=-=", user)
-                    userSchema.findByIdAndUpdate({ _id: user._id }
-                        , { $push: { invitedGroups: groupId } }, { new: true }
-                    ).then(doc => {
-                        console.log("successfully updated invited group", doc);
-
-                    }).catch(error => {
-                        console.log("error", error);
-                    })
-                })
-            })
-
-        let acceptedUsersArr = []
-        acceptedUsersArr.push(req.body.acceptedUsers)
-        // let acceptedUsersArr = req.body.acceptedUsers.join()
-
-        // req.body.acceptedUsers.forEach((element) => {
-        //     acceptedUsersArr.push(element)
-        // })
-
-        userSchema.find({ _id: { $in: acceptedUsersArr } })
-            .then(response => {
-                console.log("============accepted users=================");
-                console.log(acceptedUsersArr);
-
-                response.forEach(function (user) {
-                    userSchema.findByIdAndUpdate({ _id: user._id }
-                        , { $push: { acceptedGroups: groupId } }, { new: true }
-                    ).then(doc => {
-                        console.log("successfully updated accepted group", doc);
-
-                    }).catch(error => {
-                        console.log("error", error);
-                    })
-                })
-            })
-        res.status(200).send(response)
-    }).catch(error => {
-        //console.log( "Error", error )
-        // callback( error, null )
-        if (error.code == 11000) {
-            res.status(201).json({ errorMessage: "Group name already exists" })
-        } else {
-            console.log(error);
-            res.status(500).json(error)
+        if (err) {
+            console.log("Inside err");
+            res.status(201).send('Group name already exists')
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(201).send('Group name already exists')
         }
-    })
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+
+    });
+
+    // console.log(req.body)
+    // const userID = req.body.userID
+    // const groupName = req.body.groupName
+    // // const groupPicture = req.body.groupPicture
+    // const groupMembers = req.body.groupMembers
+    // const ts = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    // const groupCount = 0;
+    // let groupID = null;
+
+    // let imagePath = null;
+    // if (req.file) {
+    //     imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    // }
+
+    // console.log("[][][][][][][][]Request Body[][][][][][][][][][][")
+    // console.log(req.body.acceptedUsers)
+
+    // let group = new groupSchema({
+    //     groupName: req.body.groupName,
+    //     createdBy: req.body.createdBy,
+    //     createDate: ts,
+    //     groupPicture: imagePath,
+    //     acceptedUsers: req.body.acceptedUsers,
+    //     invitedUsers: req.body.invitedUsers.split(',')
+    // })
+    // console.log("][][][][][][][][]group schema][][][][][][][][][][][][");
+    // console.log(group)
+
+    // group.save().then(response => {
+    //     console.log("group created successfully", response)
+    //     const groupId = response._id
+    //     console.log("-----------------------------------------------------------");
+
+    //     let invitedUsersArr = req.body.invitedUsers.split(',')
+    //     // req.body.invitedUsers.forEach((element) => {
+    //     //     console.log(element)
+    //     //     invitedUsersArr.push(element)
+    //     // })
+
+    //     // const invitedUsers = () => { return userSchema.find({ _id: { $in: invitedUsersArr } }) };
+    //     userSchema.find({ _id: { $in: invitedUsersArr } })
+    //         .then(response => {
+    //             console.log("============invited users=================");
+    //             console.log(invitedUsersArr);
+
+    //             response.forEach(function (user) {
+    //                 console.log("=-=-=-=-=-=-=-=-=-=-=-=", user)
+    //                 userSchema.findByIdAndUpdate({ _id: user._id }
+    //                     , { $push: { invitedGroups: groupId } }, { new: true }
+    //                 ).then(doc => {
+    //                     console.log("successfully updated invited group", doc);
+
+    //                 }).catch(error => {
+    //                     console.log("error", error);
+    //                 })
+    //             })
+    //         })
+
+    //     let acceptedUsersArr = []
+    //     acceptedUsersArr.push(req.body.acceptedUsers)
+    //     // let acceptedUsersArr = req.body.acceptedUsers.join()
+
+    //     // req.body.acceptedUsers.forEach((element) => {
+    //     //     acceptedUsersArr.push(element)
+    //     // })
+
+    //     userSchema.find({ _id: { $in: acceptedUsersArr } })
+    //         .then(response => {
+    //             console.log("============accepted users=================");
+    //             console.log(acceptedUsersArr);
+
+    //             response.forEach(function (user) {
+    //                 userSchema.findByIdAndUpdate({ _id: user._id }
+    //                     , { $push: { acceptedGroups: groupId } }, { new: true }
+    //                 ).then(doc => {
+    //                     console.log("successfully updated accepted group", doc);
+
+    //                 }).catch(error => {
+    //                     console.log("error", error);
+    //                 })
+    //             })
+    //         })
+    //     res.status(200).send(response)
+    // }).catch(error => {
+    //     //console.log( "Error", error )
+    //     // callback( error, null )
+    //     if (error.code == 11000) {
+    //         res.status(201).json({ errorMessage: "Group name already exists" })
+    //     } else {
+    //         console.log(error);
+    //         res.status(500).json(error)
+    //     }
+    // })
 });
 
 router.post('/update', checkAuth, uploadGroupImage.single("groupPicture"), (req, res) => {
-    let imagePath = null;
-    if (req.file) {
-        imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+
+    const payload = {
+        body: req.body,
+        file: req.file
     }
-    groupSchema.findOneAndUpdate({ _id: req.body.groupId },
-        {
-            $set: {
-                groupName: req.body.groupName,
-                groupPicture: imagePath
-            }
-        }, { new: true }
-    ).then(response => {
-        console.log("Group successfully updated")
-        // callback( null, response )
-        res.status(200).send(response)
-    }).catch(error => {
-        if( error.code == 11000 ) {
-            res.status( 201 ).send("Group name already exists")
-        } else {
-            console.log("Error in group update", error)
-            res.status( 500 ).json( error )
+    kafka.make_request('updateGroup', payload, function (err, results) {
+        console.log('in update group results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(201).send('Group name already exists')
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(201).send('Group name already exists')
         }
-    })
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+
+    });
+
+    // let imagePath = null;
+    // if (req.file) {
+    //     imagePath = req.file.path.substring(req.file.path.indexOf("/") + 1);
+    // }
+    // groupSchema.findOneAndUpdate({ _id: req.body.groupId },
+    //     {
+    //         $set: {
+    //             groupName: req.body.groupName,
+    //             groupPicture: imagePath
+    //         }
+    //     }, { new: true }
+    // ).then(response => {
+    //     console.log("Group successfully updated")
+    //     // callback( null, response )
+    //     res.status(200).send(response)
+    // }).catch(error => {
+    //     if( error.code == 11000 ) {
+    //         res.status( 201 ).send("Group name already exists")
+    //     } else {
+    //         console.log("Error in group update", error)
+    //         res.status( 500 ).json( error )
+    //     }
+    // })
 });
 
 router.get('/groupdetails/:groupId', checkAuth, async (req, res) => {
-    const groupId = req.params.groupId;
-    let groupBalancesList = []
-    let groupBalanceObj = {}
-    // groupSchema.findOne({ _id: req.params.groupId }).then(doc => {
+    
+    kafka.make_request('groupDetails', req.params, function (err, results) {
+        console.log('in view group details results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(500).send("Error while getting group details")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(500).send("Error while getting group details")
+        }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+
+    });
+    
+    // const groupId = req.params.groupId;
+    // let groupBalancesList = []
+    // let groupBalanceObj = {}
+
+    // try {
+    //     const doc = await groupSchema.findOne({ _id: req.params.groupId })
     //     console.log(doc)
-    //     let docCopy = doc
+    //     let docCopy = doc.toObject()
+    //     let groupBalanceObj = {}
     //     for (const element of doc.groupBalances) {
     //         groupBalanceObj = {}
-    //         groupBalanceObj = element
+    //         groupBalanceObj = element.toObject()
 
-    //         userSchema.findOne({ _id: element.userId}, {userName: 1}).then( userDoc => {
-    //             groupBalanceObj.userName = userDoc.userName
-    //             groupBalancesList.push(groupBalanceObj)
-    //         })
-    //       }
-    //       docCopy.groupBalances = groupBalancesList
+    //         const userDoc = await userSchema.findOne({ _id: element.userId }, { userName: 1 })
+    //         groupBalanceObj["userName"] = userDoc.userName
+    //         groupBalancesList.push(groupBalanceObj)
+
+    //     }
+    //     docCopy.groupBalances = groupBalancesList
 
     //     res.status(200).send(docCopy)
-    // }).catch(error => {
+    // } catch (error) {
     //     console.log("Error while gettting group details", error)
     //     res.status(500).send(error)
-    // })
-    try {
-        const doc = await groupSchema.findOne({ _id: req.params.groupId })
-        console.log(doc)
-        let docCopy = doc.toObject()
-        let groupBalanceObj = {}
-        for (const element of doc.groupBalances) {
-            groupBalanceObj = {}
-            groupBalanceObj = element.toObject()
-
-            const userDoc = await userSchema.findOne({ _id: element.userId }, { userName: 1 })
-            groupBalanceObj["userName"] = userDoc.userName
-            groupBalancesList.push(groupBalanceObj)
-
-        }
-        docCopy.groupBalances = groupBalancesList
-
-        res.status(200).send(docCopy)
-    } catch (error) {
-        console.log("Error while gettting group details", error)
-        res.status(500).send(error)
-    }
+    // }
 });
 
 router.post('/acceptrejectinvite', checkAuth, (req, res) => {
-    console.log("======acceptRejectInvite=====", req.body)
-    const groupId = req.body.groupId;
-    const userId = req.body.userId;
-    const flag = req.body.flag; //A: accept invite, R: reject invite
-    // let pendingUsers = [];
-    let pendingUserIndex = null;
-    if (req.body.flag == 'A') {
-        groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: mongoose.Types.ObjectId(req.body.userId) }, { $pull: { invitedUsers: req.body.userId }, $push: { acceptedUsers: req.body.userId } }).then(doc => {
-            console.log("Member moved from pending to accepted", doc)
 
-            userSchema.updateOne({ _id: req.body.userId, invitedGroups: mongoose.Types.ObjectId(req.body.groupId) }, { $pull: { invitedGroups: req.body.groupId }, $push: { acceptedGroups: req.body.groupId } }).then(doc => {
-                console.log("Group moved from pending to accepted", doc)
-                res.status(200).send(doc)
-            }).catch(error => {
-                console.log("1111111111Error while moving group from pending to accepted1111111111", error)
-                res.status(500).send(error)
-                return;
-            })
+    kafka.make_request('acceptRejectInvite', req.body, function (err, results) {
+        console.log('in view group details results');
 
-        }).catch(error => {
+        if (err) {
+            console.log("Inside err");
+            res.status(500).send("Error while accepting/rejecting/leaving group")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(500).send("Error while accepting/rejecting/leaving group")
+        }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
 
-            console.log("22222222222Error while moving member from pending to accepted22222222222", error)
-            res.status(500).send(error)
-            return;
-        })
+    });
 
-    } else if (req.body.flag == 'R') {
-        groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: req.body.userId }, { $pull: { invitedUsers: req.body.userId } }).then(doc => {
-            console.log("Member moved from pending to accepted", doc)
-            userSchema.updateOne({ _id: req.body.userId, invitedGroups: req.body.groupId }, { $pull: { invitedGroups: req.body.groupId } }).then(doc => {
-                console.log("Group moved from pending to accepted", doc)
-                res.send(200).send(doc)
-                return;
-            }).catch(error => {
-                console.log("Error while moving group from pending to accepted", error)
-                res.status(500).send(error)
-                return;
-            })
-        }).catch(error => {
-            console.log("Error while moving user from pending to accepted", error)
-            res.status(500).send(error)
-            return;
-        })
-    } else if (req.body.flag == 'L') {
-        groupSchema.updateOne({ _id: req.body.groupId, acceptedUsers: req.body.userId }, { $pull: { acceptedUsers: req.body.userId } }).then(doc => {
-            console.log("Member moved from pending to accepted", doc)
-            userSchema.updateOne({ _id: req.body.userId, acceptedGroups: req.body.groupId }, { $pull: { acceptedGroups: req.body.groupId } }).then(doc => {
-                console.log("Group moved from pending to accepted", doc)
-                res.send(200).send(doc)
-                return;
-            }).catch(error => {
-                console.log("Error while moving group from pending to accepted", error)
-                res.status(500).send(error)
-                return;
-            })
-        }).catch(error => {
-            console.log("Error while moving user from pending to accepted", error)
-            res.status(500).send(error)
-            return;
-        })
-    }
+    // console.log("======acceptRejectInvite=====", req.body)
+    // const groupId = req.body.groupId;
+    // const userId = req.body.userId;
+    // const flag = req.body.flag; //A: accept invite, R: reject invite
+    // // let pendingUsers = [];
+    // let pendingUserIndex = null;
+    // if (req.body.flag == 'A') {
+    //     groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: mongoose.Types.ObjectId(req.body.userId) }, { $pull: { invitedUsers: req.body.userId }, $push: { acceptedUsers: req.body.userId } }).then(doc => {
+    //         console.log("Member moved from pending to accepted", doc)
+
+    //         userSchema.updateOne({ _id: req.body.userId, invitedGroups: mongoose.Types.ObjectId(req.body.groupId) }, { $pull: { invitedGroups: req.body.groupId }, $push: { acceptedGroups: req.body.groupId } }).then(doc => {
+    //             console.log("Group moved from pending to accepted", doc)
+    //             res.status(200).send(doc)
+    //         }).catch(error => {
+    //             console.log("1111111111Error while moving group from pending to accepted1111111111", error)
+    //             res.status(500).send(error)
+    //             return;
+    //         })
+
+    //     }).catch(error => {
+
+    //         console.log("22222222222Error while moving member from pending to accepted22222222222", error)
+    //         res.status(500).send(error)
+    //         return;
+    //     })
+
+    // } else if (req.body.flag == 'R') {
+    //     groupSchema.updateOne({ _id: req.body.groupId, invitedUsers: req.body.userId }, { $pull: { invitedUsers: req.body.userId } }).then(doc => {
+    //         console.log("Member moved from pending to accepted", doc)
+    //         userSchema.updateOne({ _id: req.body.userId, invitedGroups: req.body.groupId }, { $pull: { invitedGroups: req.body.groupId } }).then(doc => {
+    //             console.log("Group moved from pending to accepted", doc)
+    //             res.send(200).send(doc)
+    //             return;
+    //         }).catch(error => {
+    //             console.log("Error while moving group from pending to accepted", error)
+    //             res.status(500).send(error)
+    //             return;
+    //         })
+    //     }).catch(error => {
+    //         console.log("Error while moving user from pending to accepted", error)
+    //         res.status(500).send(error)
+    //         return;
+    //     })
+    // } else if (req.body.flag == 'L') {
+    //     groupSchema.updateOne({ _id: req.body.groupId, acceptedUsers: req.body.userId }, { $pull: { acceptedUsers: req.body.userId } }).then(doc => {
+    //         console.log("Member moved from pending to accepted", doc)
+    //         userSchema.updateOne({ _id: req.body.userId, acceptedGroups: req.body.groupId }, { $pull: { acceptedGroups: req.body.groupId } }).then(doc => {
+    //             console.log("Group moved from pending to accepted", doc)
+    //             res.send(200).send(doc)
+    //             return;
+    //         }).catch(error => {
+    //             console.log("Error while moving group from pending to accepted", error)
+    //             res.status(500).send(error)
+    //             return;
+    //         })
+    //     }).catch(error => {
+    //         console.log("Error while moving user from pending to accepted", error)
+    //         res.status(500).send(error)
+    //         return;
+    //     })
+    // }
 })
 
 router.get('/mygroupspending/:userId', checkAuth, (req, res) => {
-    let invitedGroups = []
-    userSchema.findOne({ _id: req.params.userId }).then(doc => {
-        if (doc != null) {
-            invitedGroups = doc.invitedGroups
-            groupSchema.find(
-                { _id: { $in: invitedGroups } },
-                { acceptedUsers: 0, invitedUsers: 0, expenses: 0, transaction: 0, debts: 0, groupBalances: 0 }
-            ).then(doc => {
-                res.status(200).send(doc)
-                return;
-            }).catch(error => {
-                res.status(500).send(error)
-                return;
-            })
-        } else {
-            res.status(201).send('No pending group invites')
+
+    kafka.make_request('myGroupsPending', req.params, function (err, results) {
+        console.log('in myGroupsPending results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(201).send("No pending group invites")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(201).send("No pending group invites")
         }
-    }).catch(error => {
-        res.status(500).send(error)
-        return;
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
     })
+
+
+    // let invitedGroups = []
+    // userSchema.findOne({ _id: req.params.userId }).then(doc => {
+    //     if (doc != null) {
+    //         invitedGroups = doc.invitedGroups
+    //         groupSchema.find(
+    //             { _id: { $in: invitedGroups } },
+    //             { acceptedUsers: 0, invitedUsers: 0, expenses: 0, transaction: 0, debts: 0, groupBalances: 0 }
+    //         ).then(doc => {
+    //             res.status(200).send(doc)
+    //             return;
+    //         }).catch(error => {
+    //             res.status(500).send(error)
+    //             return;
+    //         })
+    //     } else {
+    //         res.status(201).send('No pending group invites')
+    //     }
+    // }).catch(error => {
+    //     res.status(500).send(error)
+    //     return;
+    // })
 
 
 });
 
 
 router.get('/mygroups/:userId', checkAuth, (req, res) => {
-    let acceptedGroups = []
-    userSchema.findOne({ _id: req.params.userId }).then(doc => {
-        if (doc != null) {
-            acceptedGroups = doc.acceptedGroups
 
-            groupSchema.find(
-                { _id: { $in: acceptedGroups } },
-                { acceptedUsers: 0, invitedUsers: 0, expenses: 0, transaction: 0, debts: 0, groupBalances: 0 }
-            ).then(doc => {
-                res.status(200).send(doc)
-                return;
-            }).catch(error => {
-                console.log(error);
-                res.status(500).send({ error })
-                return;
-            })
-        } else {
+    kafka.make_request('myGroups', req.params, function (err, results) {
+        console.log('in myGroups results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(201).send("No groups found")
+        } else if( err == null && results == null){
+            console.log("Inside err");
             res.status(201).send("No groups found")
         }
-    }).catch(error => {
-        console.log(error)
-        res.status(500).send({ error })
-        return;
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
     })
+
+    // let acceptedGroups = []
+    // userSchema.findOne({ _id: req.params.userId }).then(doc => {
+    //     if (doc != null) {
+    //         acceptedGroups = doc.acceptedGroups
+
+    //         groupSchema.find(
+    //             { _id: { $in: acceptedGroups } },
+    //             { acceptedUsers: 0, invitedUsers: 0, expenses: 0, transaction: 0, debts: 0, groupBalances: 0 }
+    //         ).then(doc => {
+    //             res.status(200).send(doc)
+    //             return;
+    //         }).catch(error => {
+    //             console.log(error);
+    //             res.status(500).send({ error })
+    //             return;
+    //         })
+    //     } else {
+    //         res.status(201).send("No groups found")
+    //     }
+    // }).catch(error => {
+    //     console.log(error)
+    //     res.status(500).send({ error })
+    //     return;
+    // })
 });
 
 router.get('/search/users', checkAuth, (req, res) => {
-    const userInput = req.query.keyword
-    userSchema.find(
-        {
-            $and: [
-                {
-                    $or: [{
-                        userName: { $regex: ".*" + userInput + ".*" }
-                    },
-                    { userEmail: { $regex: ".*" + userInput + ".*" } }
-                    ]
-                },
-                {
-                    _id: { $ne: req.query.userId }
-                }
-            ]
-        },
-        {
-            userEmail: 1,
-            userName: 1
+    kafka.make_request('groupUserSearch', req.query, function (err, results) {
+        console.log('in groupUserSearch results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(500).send("Error while searching users")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(500).send("Error while searching users")
         }
-    ).then(doc => { res.status(200).send(doc) }
-    ).catch(error => {
-        console.log("Error while searching for users", error)
-        res.status(500).send({ error })
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
     })
+
+    // const userInput = req.query.keyword
+    // userSchema.find(
+    //     {
+    //         $and: [
+    //             {
+    //                 $or: [{
+    //                     userName: { $regex: ".*" + userInput + ".*" }
+    //                 },
+    //                 { userEmail: { $regex: ".*" + userInput + ".*" } }
+    //                 ]
+    //             },
+    //             {
+    //                 _id: { $ne: req.query.userId }
+    //             }
+    //         ]
+    //     },
+    //     {
+    //         userEmail: 1,
+    //         userName: 1
+    //     }
+    // ).then(doc => { res.status(200).send(doc) }
+    // ).catch(error => {
+    //     console.log("Error while searching for users", error)
+    //     res.status(500).send({ error })
+    // })
 });
 
 router.get('/search/groups/:userId', checkAuth, async (req, res) => {
-    const userId = req.params.userId
-    const userInput = req.query.keyword
-    try {
-        let groupSchemaDoc = await groupSchema.find(
-            {
-                $and: [
-                    { acceptedUsers: { $in: userId } },
-                    { groupName: { $regex: ".*" + userInput + ".*" } }
-                ]
-            },
-            {
-                groupName: 1
-            }
-        )
-        res.status(200).send(groupSchemaDoc)
-    } catch (error) {
-        console.log("Error while searching groups", error)
-        res.status(500).send(error)
+
+    let payload = {
+        params: req.params,
+        query: req.query
     }
+
+    kafka.make_request('groupSearch', payload, function (err, results) {
+        console.log('in groupSearch results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(500).send("Error while searching groups")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(500).send("Error while searching groups")
+        }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+    })
+
+    // const userId = req.params.userId
+    // const userInput = req.query.keyword
+    // try {
+    //     let groupSchemaDoc = await groupSchema.find(
+    //         {
+    //             $and: [
+    //                 { acceptedUsers: { $in: userId } },
+    //                 { groupName: { $regex: ".*" + userInput + ".*" } }
+    //             ]
+    //         },
+    //         {
+    //             groupName: 1
+    //         }
+    //     )
+    //     res.status(200).send(groupSchemaDoc)
+    // } catch (error) {
+    //     console.log("Error while searching groups", error)
+    //     res.status(500).send(error)
+    // }
 });
 
 router.get('/groupexpenses/:groupId', checkAuth, async (req, res) => {
-    const groupId = req.params.groupId
-    let resArray = []
-    // let resObj = {}
-    try {
-        let expenseSchemaDoc = await expenseSchema.find(
-            { groupId: groupId }
-        ).sort({ _id: -1 })
-        console.log(expenseSchemaDoc)
-        for (const doc of expenseSchemaDoc) {
-            let settledWithUserName = ''
-            let paidByUserName = await userSchema.findOne(
-                { _id: doc.paidByUserId },
-                { userName: 1 }
-            )
-            if (doc.settledWithUserId != null && doc.settleFlag == 'Y') {
-                settledWithUserName = await userSchema.findOne(
-                    { _id: doc.settledWithUserId[0] },
-                    { userName: 1 }
-                )
-            }
-            // console.log(paidByUserName)
-            let resObj = {}
-            resObj.expenseId = doc._id
-            resObj.paidByUserId = paidByUserName._id
-            resObj.paidByUserName = paidByUserName.userName
-            resObj.description = doc.description
-            resObj.amount = doc.amount
-            resObj.currency = doc.currency
-            resObj.comments = doc.comments
-            resObj.createdAt = doc.createdAt
-            resObj.settleFlag = doc.settleFlag
-            resObj.settledWithUserId = doc.settledWithUserId
-            resObj.settledWithUserName = settledWithUserName.userName
 
-            // resObj.expense = doc
-            // resObj.expense = doc
-            resArray.push(resObj)
+    kafka.make_request('groupExpenses', req.params, function (err, results) {
+        console.log('in groupExpenses results');
+
+        if (err) {
+            console.log("Inside err");
+            res.status(500).send("Error while getting group expenses")
+        } else if( err == null && results == null){
+            console.log("Inside err");
+            res.status(500).send("Error while getting group expenses")
         }
+        else {
+            console.log("Inside else", results);
+            res.status(200).send(results)
+        }
+    })
 
-        res.status(200).send(resArray)
-    } catch (error) {
-        console.log("Error while getting group expenses", error)
-        res.status(500).send(error)
-    }
-    // const groupExpenseQuery = "SELECT E.*, U.USER_NAME, (SELECT S.USER_NAME FROM USERS S WHERE S.USER_ID = E.SETTLED_WITH_USER_ID) AS SETTLED_WITH_USER_NAME FROM EXPENSES E, USERS U WHERE U.USER_ID = E.PAID_BY_USER_ID AND E.GROUP_ID = " + groupID + " ORDER BY EXP_ID DESC"
+    // const groupId = req.params.groupId
+    // let resArray = []
+    // // let resObj = {}
+    // try {
+    //     let expenseSchemaDoc = await expenseSchema.find(
+    //         { groupId: groupId }
+    //     ).sort({ _id: -1 })
+    //     console.log(expenseSchemaDoc)
+    //     for (const doc of expenseSchemaDoc) {
+    //         let settledWithUserName = ''
+    //         let paidByUserName = await userSchema.findOne(
+    //             { _id: doc.paidByUserId },
+    //             { userName: 1 }
+    //         )
+    //         if (doc.settledWithUserId != null && doc.settleFlag == 'Y') {
+    //             settledWithUserName = await userSchema.findOne(
+    //                 { _id: doc.settledWithUserId[0] },
+    //                 { userName: 1 }
+    //             )
+    //         }
+    //         // console.log(paidByUserName)
+    //         let resObj = {}
+    //         resObj.expenseId = doc._id
+    //         resObj.paidByUserId = paidByUserName._id
+    //         resObj.paidByUserName = paidByUserName.userName
+    //         resObj.description = doc.description
+    //         resObj.amount = doc.amount
+    //         resObj.currency = doc.currency
+    //         resObj.comments = doc.comments
+    //         resObj.createdAt = doc.createdAt
+    //         resObj.settleFlag = doc.settleFlag
+    //         resObj.settledWithUserId = doc.settledWithUserId
+    //         resObj.settledWithUserName = settledWithUserName.userName
+
+    //         // resObj.expense = doc
+    //         // resObj.expense = doc
+    //         resArray.push(resObj)
+    //     }
+
+    //     res.status(200).send(resArray)
+    // } catch (error) {
+    //     console.log("Error while getting group expenses", error)
+    //     res.status(500).send(error)
+    // }
 });
 
 router.post('/leave', checkAuth, async (req, res) => {

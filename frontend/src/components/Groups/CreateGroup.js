@@ -134,8 +134,8 @@ class CreateGroup extends Component {
                         //window.location.assign('/profile/' + cookie.load('userID'))
                         //this.props.history.push("/dashboard")
                         //window.location.reload()
-                        // this.props.history.push("/mygroups")
-                        window.location.assign("/mygroups")
+                        this.props.history.push("/mygroups")
+                        // window.location.assign("/mygroups")
                     } else if (response.status === 201) {
                         this.setState({
                             authFlag: true,

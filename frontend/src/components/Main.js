@@ -16,15 +16,15 @@ class Main extends Component {
         return(
             <div>
                 {/*Render Different Component based on Route*/}
-                {<Route exact path="/" component={LandingPage}/>}
-                {<Route path="/login" component={Login}/>}
-                {<Route path="/signup" component={Signup}/>}
-                {<Route path="/dashboard" component={Dashboard}/>}
-                {<Route path="/profile" component={Profile} />}
-                {<Route path="/creategroup" component={CreateGroup} />}
-                {<Route path="/mygroups" component={MyGroups} />}
-                {<Route exact path="/grouppage/:groupid" component={GroupPage}/>}
-                {<Route path="/recentactivity" component={RecentActivity} />}
+                <Route exact path="/" component={LandingPage}/>
+                <Route path="/login" component={Login}/>
+                <Route path="/signup" component={Signup}/>
+                <Route path="/dashboard" component={Dashboard}/>
+                <Route path="/profile" component={Profile} />
+                <Route path="/creategroup" component={CreateGroup} />
+                <Route exact path="/mygroups" component={MyGroups} />
+                <Route exact path="/grouppage/:groupid" component={GroupPage}/>
+                <Route path="/recentactivity" component={RecentActivity} />
             </div>
         )
     }

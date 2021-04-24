@@ -6,6 +6,8 @@ import Navbar from '../LandingPage/Navbar';
 import axios from 'axios';
 import AsyncSelect from "react-select/async";
 import API_URL from "../../config/config";
+import { connect } from "react-redux";
+import createGroupAction from '../../actions/createGroupAction';
 
 class CreateGroup extends Component {
     constructor(props) {
@@ -122,6 +124,13 @@ class CreateGroup extends Component {
                             Msg: "Group successfully created"
                         })
                         console.log("Group successfully created");
+
+                        let createGroupActionData = {
+                            response: response.data,
+                            status: true
+                        }
+                        this.props.createGroupAction(createGroupActionData)
+
                         //window.location.assign('/profile/' + cookie.load('userID'))
                         //this.props.history.push("/dashboard")
                         //window.location.reload()
@@ -134,6 +143,11 @@ class CreateGroup extends Component {
                             errorMessage: "Group name already exists."
                         })
                         console.log("Group Name already exists");
+                        let createGroupActionData = {
+                            response: "Group Name already exists",
+                            status: false
+                        }
+                        this.props.createGroupAction(createGroupActionData)
                     }
                 }).catch(e => {
                     console.log(e);
@@ -142,6 +156,11 @@ class CreateGroup extends Component {
                         MsgFlag: true,
                         errorMessage: e
                     })
+                    let createGroupActionData = {
+                        response: e,
+                        status: false
+                    }
+                    this.props.createGroupAction(createGroupActionData)
                 })
         }
     }
@@ -160,7 +179,6 @@ class CreateGroup extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                     </div>
@@ -200,9 +218,25 @@ class CreateGroup extends Component {
                             </div>
                         </div>
                     </div>
-                </BrowserRouter>
             </div>
         )
     }
 }
-export default CreateGroup;
+// export default CreateGroup;
+
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.groupReducer.error,
+        message: state.groupReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        createGroupAction: (data) => dispatch(createGroupAction(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(CreateGroup)

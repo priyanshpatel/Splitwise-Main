@@ -59,7 +59,7 @@ let loginAction = (data) => (dispatch) => {
                 cookie.save('language', decoded.language, { path: '/' })
                 cookie.save('profilePicture', decoded.profilePicture, { path: '/' })
                 dispatch(successUser(decoded, data))
-                // this.props.history.push("/dashboard")
+                this.props.history.push("/dashboard")
             } else if (response.status === 401) {
                 //Invalid credentials
                 // this.setState({

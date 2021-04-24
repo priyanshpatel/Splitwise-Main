@@ -198,7 +198,7 @@ async function handle_request(msg, callback) {
 
                     let groupDebtUpdRes = await groupSchema.updateOne(
                         { _id: req.groupId },
-                        { $push: { debts: response._id } }
+                        { $push: { debts: debtSaveRes._id } }
                     )
                     console.log("Debts successfully added to Group", groupDebtUpdRes)
                 } else {

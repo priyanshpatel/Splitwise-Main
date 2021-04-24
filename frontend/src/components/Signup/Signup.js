@@ -143,7 +143,6 @@ class Signup extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <div>
                             <Navbar />
@@ -175,7 +174,6 @@ class Signup extends Component {
                             </div>
                         </div>
                     </div>
-                </BrowserRouter>
             </div>
         )
     }

@@ -98,7 +98,6 @@ export class Login extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                     </div>
@@ -125,7 +124,6 @@ export class Login extends Component {
                             </div>
                         </div>
                     </div>
-                </BrowserRouter>
             </div>
         )
     }

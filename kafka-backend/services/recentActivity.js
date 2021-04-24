@@ -52,7 +52,17 @@ async function handle_request(msg, callback) {
             recentActivityObj = {}
             recentActivityObj.expenseId = expense._id
             recentActivityObj.createdAt = expense.createdAt
-            if (expense.paidByUserId == userId) {
+            if (expense.settleFlag == 'Y' && expense.settledWithUserName != null && expense.description == "settle up") {
+                if (expense.paidByUserId == userId) {
+                    recentActivityObj.activityDescription = expense.settledWithUserName + " and you settled up in " + expense.groupName
+                } else if (expense.settledWithUserId[0] == userId){
+                    recentActivityObj.activityDescription = expense.paidByUserName + " and you settled up in " + expense.groupName
+                }
+                else {
+                    recentActivityObj.activityDescription = expense.settledWithUserName + " and "+ expense.paidByUserName +" settled up in " + expense.groupName
+                }
+            }
+            else if (expense.paidByUserId == userId) {
                 recentActivityObj.activityDescription = "You added " + expense.description + " in " + expense.groupName
                 recentActivityObj.expenseDescription = "You get back $ " + expense.paidByUserGetsBack
             } else {
@@ -62,11 +72,11 @@ async function handle_request(msg, callback) {
             recentActivityList.push(recentActivityObj)
         }
         // res.status(200).send(recentActivityList)
-        callback( null, recentActivityList)
+        callback(null, recentActivityList)
     } catch (error) {
         // res.status(500).send(error)
         console.log("Error while getting recent activity", error)
-        callback( "Error while getting recent activity " + error, null )
+        callback("Error while getting recent activity " + error, null)
     }
 }
 

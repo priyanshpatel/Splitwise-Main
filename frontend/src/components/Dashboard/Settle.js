@@ -8,6 +8,8 @@ import AsyncSelect from "react-select/async";
 import PropTypes from 'prop-types';
 // import { Button } from 'semantic-ui-react'
 import API_URL from "../../config/config";
+import { connect } from "react-redux";
+import settleUpAction from '../../actions/settleUpAction';
 
 class Settle extends Component {
     constructor(props) {
@@ -68,6 +70,11 @@ class Settle extends Component {
                     console.log("Status Code: ", response.status);
                     console.log(response.data);
                     if (response.status === 200) {
+                        let settleUpActionData = {
+                            response: response,
+                            status: true
+                        }
+                        this.props.settleUpAction(settleUpActionData)
                         window.location.reload()
                     } else {
                         console.log(response.data);
@@ -75,9 +82,19 @@ class Settle extends Component {
                             MsgFlag: true,
                             Msg: "Settle up failed"
                         })
+                        let settleUpActionData = {
+                            response: response,
+                            status: false
+                        }
+                        this.props.settleUpAction(settleUpActionData)
                     }
                 }).catch(err => {
                     console.log(err);
+                    let settleUpActionData = {
+                        response: err,
+                        status: false
+                    }
+                    this.props.settleUpAction(settleUpActionData)
                 })
 
             // window.location.reload()
@@ -125,4 +142,20 @@ class Settle extends Component {
         )
     }
 }
-export default Settle;
+// export default Settle;
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.settleUpReducer.error,
+        message: state.settleUpReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        settleUpAction: (data) => dispatch(settleUpAction(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(Settle)

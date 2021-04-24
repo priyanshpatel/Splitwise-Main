@@ -59,6 +59,16 @@ async function handle_request(msg, callback) {
                 transactions: [],
                 settledWithUserId: [(debt.amount < 0) ? userId2 : userId1]
             })
+            let paidByUserIdData = (debt.amount < 0) ? userId1 : userId2
+            let settledWithUserIdData = (debt.amount < 0) ? userId2 : userId1
+            let paidByUserNameRes = await userSchema.findOne({_id: paidByUserIdData})
+            let groupNameRes = await groupSchema.findOne({_id: debt.groupId})
+            let settledWithUserNameRes = await userSchema.findOne({_id: settledWithUserIdData})
+
+            expense.paidByUserName = paidByUserNameRes.userName
+            expense.settledWithUserName = settledWithUserNameRes.userName
+            expense.groupName = groupNameRes.groupName
+
             let expenseResponse = await expense.save()
             console.log("expense added successfully ", expenseResponse)
 

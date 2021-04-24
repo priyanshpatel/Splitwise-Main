@@ -8,6 +8,8 @@ import AsyncSelect from "react-select/async";
 import PropTypes from 'prop-types';
 // import { Button } from 'semantic-ui-react'
 import API_URL from "../../config/config";
+import { connect } from "react-redux";
+import addExpenseAction from '../../actions/addExpenseAction';
 
 class AddExpense extends Component {
     constructor(props) {
@@ -67,15 +69,31 @@ class AddExpense extends Component {
             axios.post(API_URL + '/expenses/add', data)
                 .then(response => {
                     if (response.status === 200) {
+                        let addExpenseActionData = {
+                            response: response,
+                            status: true
+                        }
+                        console.log("-------------------------------------------",addExpenseActionData)
+                        this.props.addExpenseAction(addExpenseActionData)
                         window.location.reload()
                     } else {
                         this.setState({
                             MsgFlag: true,
                             Msg: "Add expense failed"
                         })
+                        let addExpenseActionData = {
+                            response: "Add expense failed",
+                            status: false
+                        }
+                        this.props.addExpenseAction(addExpenseActionData)
                     }
                 }).catch(err => {
                     console.log(err);
+                    let addExpenseActionData = {
+                        response: err,
+                        status: false
+                    }
+                    this.props.addExpenseAction(addExpenseActionData)
                 })
         }
 
@@ -119,5 +137,21 @@ class AddExpense extends Component {
         )
     }
 }
-export default AddExpense;
+// export default AddExpense;
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.groupReducer.error,
+        message: state.groupReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        addExpenseAction: (data) => dispatch(addExpenseAction(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(AddExpense)
 

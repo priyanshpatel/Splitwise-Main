@@ -15,6 +15,10 @@ import { Accordion, Card } from 'react-bootstrap';
 import { FaTimes } from 'react-icons/fa'
 import Comments from "./Comments";
 import NewComments from "./NewComments";
+import { connect } from "react-redux";
+import addComment from '../../actions/addComment';
+import deleteComment from '../../actions/deleteComment';
+
 
 const customStyles = {
     content: {
@@ -145,7 +149,7 @@ class GroupPage extends Component {
                 axios.defaults.withCredentials = true;
 
                 let response = await axios.post(API_URL + '/expenses/addcomment', data)
-
+                
                 console.log("Comment Added Successfully", response.data)
 
                 let newGroupExpensesList = []
@@ -162,8 +166,18 @@ class GroupPage extends Component {
                 this.setState({
                     groupExpenses: newGroupExpensesList
                 })
+                let addCommentActionData = {
+                    response: response,
+                    status: true
+                }
+                this.props.addComment(addCommentActionData)
             } catch (error) {
                 console.log("Error while adding comment", error);
+                let addCommentActionData = {
+                    response: error,
+                    status: false
+                }
+                this.props.addComment(addCommentActionData)
             }
         }
     }
@@ -193,8 +207,19 @@ class GroupPage extends Component {
                 groupExpenses: newGroupExpensesList
             })
 
+            let deleteCommentActionData = {
+                response: response,
+                status: true
+            }
+            this.props.deleteComment(deleteCommentActionData)
+
         } catch (error) {
             console.log("Error while deleteing comment", error)
+            let deleteCommentActionData = {
+                response: error,
+                status: false
+            }
+            this.props.deleteComment(deleteCommentActionData)
         }
     }
 
@@ -336,4 +361,22 @@ class GroupPage extends Component {
         )
     }
 }
-export default GroupPage;
+// export default GroupPage;
+
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.commentsReducer.error,
+        message: state.commentsReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        addComment: (data) => dispatch(addComment(data)),
+        deleteComment: (data) => dispatch(deleteComment(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(GroupPage)

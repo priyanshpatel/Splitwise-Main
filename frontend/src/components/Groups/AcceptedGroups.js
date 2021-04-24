@@ -30,16 +30,14 @@ class AcceptedGroups extends Component {
 
     render() {
         return (
-            <BrowserRouter>
             <div class="card text-dark bg-light mb-3" style={{width: '38rem'}}>
                 <div class="card-body">
                     <h6 class="card-title"><strong>{this.state.groupName}</strong></h6>
-                    <a href={"/grouppage/"+this.state.groupId} class="btn btn-outline-primary">Details</a>&nbsp;
+                    <Link to={"/grouppage/"+this.state.groupId} class="btn btn-outline-primary">Details</Link>&nbsp;
                     <a href="" class="btn btn-outline-danger" onClick={this.props.leaveGroup.bind(this, this.state)}>Leave</a>&nbsp;
                     {/* <a href="" class="btn btn-outline-secondary" onClick={this.props.editGroup.bind(this, this.state)}>Edit</a> */}
                 </div>
             </div>
-            </BrowserRouter>
         )
     }
 }

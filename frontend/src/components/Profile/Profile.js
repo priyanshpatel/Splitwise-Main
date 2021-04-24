@@ -6,6 +6,9 @@ import Navbar from '../LandingPage/Navbar';
 import splitwise_logo from '../../images/splitwise_logo.png';
 import axios from 'axios';
 import API_URL from "../../config/config";
+import { connect } from "react-redux";
+import updateProfile from '../../actions/updateProfileAction';
+import getProfile from '../../actions/getProfileAction';
 
 class Profile extends Component {
     constructor(props) {
@@ -49,9 +52,28 @@ class Profile extends Component {
                         profilePicture: response.data.profilePicture,
                         image: API_URL + "/" + response.data.profilePicture
                     });
+                    let redux_response = {
+                        userEmail: this.state.userEmail,
+                        userName: this.state.userName,
+                        phoneNumber: this.state.phoneNumber,
+                        timezone: this.state.timezone,
+                        currency: this.state.currency,
+                        language: this.state.language,
+                        profilePicture: this.state.profilePicture
+                    }
+                    let getProfileActionData = {
+                        response: redux_response,
+                        status: true
+                    }
+                    this.props.getProfile(getProfileActionData)
                 }
             }).catch(e => {
                 console.log("Error while getting profile", e);
+                let getProfileActionData = {
+                    response: e,
+                    status: false
+                }
+                this.props.getProfile(getProfileActionData)
             })
     }
 
@@ -113,12 +135,28 @@ class Profile extends Component {
                     updateFlag: true,
                     Msg: "Profile successfully updated"
                 })
-                if (response.state === 200) {
+                console.log(response)
+                if (response.status === 200) {
                     this.setState({
                         authFlag: true,
                         updateFlag: true,
                         Msg: "Profile successfully updated"
                     })
+                    let redux_response = {
+                        userEmail: this.state.userEmail,
+                        userName: this.state.userName,
+                        phoneNumber: this.state.phoneNumber,
+                        timezone: this.state.timezone,
+                        currency: this.state.currency,
+                        language: this.state.language,
+                        profilePicture: this.state.profilePicture
+                    }
+                    let updateProfileActionData = {
+                        response: redux_response,
+                        status: true
+                    }
+                    this.props.updateProfile(updateProfileActionData)
+
                     cookie.save('userEmail', this.state.userEmail, { path: '/' })
                     cookie.save('userName', this.state.userName, { path: '/' })
                     cookie.save('phoneNumber', this.state.phoneNumber, { path: '/' })
@@ -129,7 +167,7 @@ class Profile extends Component {
 
                     //window.location.assign('/profile/' + cookie.load('userID'))
                     //this.props.history.push("/dashboard")
-                    window.location.reload()
+                    // window.location.reload()
                 }
             }).catch(e => {
                 console.log(e);
@@ -137,6 +175,11 @@ class Profile extends Component {
                     authFlag: false,
                     errorMessage: e
                 })
+                let updateProfileActionData = {
+                    response: e,
+                    status: false
+                }
+                this.props.updateProfile(updateProfileActionData)
             })
     }
 
@@ -150,7 +193,6 @@ class Profile extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                     </div>
@@ -345,10 +387,26 @@ class Profile extends Component {
 
                         </div>
                     </div>
-                </BrowserRouter>
             </div>
         )
     }
 }
 
-export default Profile;
+// export default Profile;
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.profileReducer.error,
+        message: state.profileReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        updateProfile: (data) => dispatch(updateProfile(data)),
+        getProfile: (data) => dispatch(getProfile(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(Profile)

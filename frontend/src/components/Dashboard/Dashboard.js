@@ -8,6 +8,8 @@ import axios from 'axios';
 import Modal from 'react-modal';
 import Settle from "./Settle";
 import API_URL from "../../config/config";
+import { connect } from "react-redux";
+import getDashboardAction from '../../actions/getDashboardAction';
 
 const customStyles = {
     content: {
@@ -127,12 +129,29 @@ class Dashboard extends Component {
                     this.setState({
                         youOweList: response.data
                     })
+                    let redux_response = {
+                        totalBalance: this.state.totalBalance,
+                        totalYouOwe: this.state.totalYouOwe,
+                        totalYouAreOwed: this.state.totalYouAreOwed,
+                        youOweList: this.state.youAreOwedList,
+                        youAreOwedList: response.data,
+                    }
+                    let getDashboardActionData = {
+                        response: redux_response,
+                        status: true
+                    }
+                    this.props.getDashboardAction(getDashboardActionData)
                 }
                 console.log("[[[[[[[[[you owe]]]]]]]]]]");
                 console.log(response.status);
                 console.log(response.data);
             }).catch(e => {
                 console.log(e);
+                let getDashboardActionData = {
+                    response: e,
+                    status: true
+                }
+                this.props.getDashboardAction(getDashboardActionData)
             })
     }
 
@@ -189,7 +208,6 @@ class Dashboard extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                         <br />
@@ -264,9 +282,24 @@ class Dashboard extends Component {
                             <Settle data={this.state} closePopUp={this.toggleSettleUp} />
                         </Modal>
                     </div>
-                </BrowserRouter>
             </div>
         )
     }
 }
-export default Dashboard;
+// export default Dashboard;
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.dashboardReducer.error,
+        message: state.dashboardReducer.message
+    }
+
+}
+
+const matchDispatchToProps = (dispatch) => {
+    return {
+        getDashboardAction: (data) => dispatch(getDashboardAction(data)),
+    }
+}
+
+export default connect(matchStateToProps, matchDispatchToProps)(Dashboard)

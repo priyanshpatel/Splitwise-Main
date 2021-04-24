@@ -21,6 +21,7 @@ let userSchema = new Schema({
     currency: String,
     language: String,
     profilePicture: String,
+    phoneNumber: String,
     invitedGroups: [
         {
             type: mongoose.Schema.Types.ObjectId,

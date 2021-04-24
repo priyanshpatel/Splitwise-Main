@@ -155,6 +155,7 @@ class MyGroups extends Component {
 
     // Remove Invite and add to group
     acceptInvite = (group) => {
+        console.log("acceptInvite>>>>>>>>>>>>>", group)
         // console.log("[][][][][][]pending invites[][][][][][", this.state.pendingInvites)
         const data = {
             userId: cookie.load('userId'),
@@ -207,7 +208,7 @@ class MyGroups extends Component {
             pendingInvites = this.state.pendingInvites.map((invite) => {
                 // return <div class="p-3 border bg-light">{invite}</div>;
                 return <PendingGroups
-                    key={invite._id}
+                    key={invite.groupId}
                     data={invite}
                     acceptInvite={this.acceptInvite}
                     rejectInvite={this.rejectInvite}
@@ -215,9 +216,10 @@ class MyGroups extends Component {
             })
         }
         if (this.state.acceptedInvites != null) {
+            console.log("INVITE>>>>>>>>>>>>>>>>>>>>", this.state.acceptedInvites)
             acceptedInvites = this.state.acceptedInvites.map((invite) => {
                 return <AcceptedGroups
-                    key={invite._id}
+                    key={invite.groupId}
                     data={invite}
                     leaveGroup={this.leaveGroup}
                 />
@@ -227,7 +229,7 @@ class MyGroups extends Component {
         if (this.state.searchInput != null) {
             acceptedInvites = searchedGroups.map((invite) => {
                 return <AcceptedGroups
-                    key={invite._id}
+                    key={invite.groupId}
                     data={invite}
                     leaveGroup={this.leaveGroup}
                 />
@@ -236,7 +238,6 @@ class MyGroups extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                     </div>
@@ -287,7 +288,6 @@ class MyGroups extends Component {
                         </div>
                         {this.state.leaveFlag ? <div class="alert alert-danger" role="alert">{this.state.errorMessage}</div> : null}
                     </div>
-                </BrowserRouter>
             </div>
         )
     }

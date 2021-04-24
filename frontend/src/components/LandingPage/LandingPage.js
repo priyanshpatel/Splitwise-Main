@@ -19,7 +19,6 @@ class LandingPage extends Component {
         return (
             <div>
                 {redirectVar}
-                <BrowserRouter>
                     <div>
                         <Navbar />
                     </div>
@@ -34,7 +33,7 @@ class LandingPage extends Component {
                                     <i class="fa fa-asterisk icon-style"></i>
                                     <p><strong>Keep track of your shared expenses and<br />balances with housemates, trips, groups,<br />friends, and family.</strong></p>
                                     <br />
-                                    <a class="btn btn-primary btn-lg" href="/signup" type="button" style={{ backgroundColor: "#59cfa7", border: "none" }}>Sign up</a>
+                                    <Link class="btn btn-primary btn-lg" to="/signup" type="button" style={{ backgroundColor: "#59cfa7", border: "none" }}>Sign up</Link>
                                 </div>
                                 <div class="col-7">
                                     <div><img class="landing-plane" src={landing_plane} style={{ paddingTop: "20px" }}></img></div>
@@ -42,7 +41,6 @@ class LandingPage extends Component {
                             </div>
                         </div>
                     </div>
-                </BrowserRouter>
             </div>
 
         )

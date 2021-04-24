@@ -41,7 +41,7 @@ let userSignUpAction = (data) => (dispatch) => {
                 cookie.save('userEmail', decoded.userEmail, { path: '/' })
                 cookie.save('userName', decoded.userName, { path: '/' })
                 dispatch(successUser(decoded, data))
-                // window.location.assign( '/login' )
+                window.location.assign( '/dashboard' )
             } else if (response.status === 201){
                 dispatch(errorUser(response, data))
             }

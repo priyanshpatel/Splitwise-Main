@@ -120,7 +120,7 @@ export class Login extends Component {
                                 </form>
                                 <br></br>
                                 {/* {this.state.MsgFlag ? <div class="alert alert-danger" role="alert">{this.state.Msg}</div> : null} */}
-                                {/* {renderError} */}
+                                {renderError}
                             </div>
                         </div>
                     </div>

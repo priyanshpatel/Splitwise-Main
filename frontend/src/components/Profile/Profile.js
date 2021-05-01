@@ -175,6 +175,7 @@ class Profile extends Component {
                         emailUpdateFlag: false,
                         Msg: response.data,
                         authFlag: false,
+                        updateFlag: false
                     })
                 }
             }).catch(e => {

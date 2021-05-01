@@ -40,6 +40,7 @@ let loginAction = (data) => (dispatch) => {
             console.log(response.data)
             
             if (response.status === 200) {
+                console.log("INSIDE 200>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 let decoded = jwt_decode(response.data.toString().split(' ')[1])
                 console.log("decoded", decoded)
                 //redirect to dashboard
@@ -61,6 +62,7 @@ let loginAction = (data) => (dispatch) => {
                 dispatch(successUser(decoded, data))
                 this.props.history.push("/dashboard")
             } else if (response.status === 401) {
+                console.log("INSIDE 401>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 //Invalid credentials
                 // this.setState({
                 //     authFlag: true,
@@ -80,6 +82,7 @@ let loginAction = (data) => (dispatch) => {
             //     dispatch( errorUser( err, data ) )
             // }
         }).catch(e => {
+            console.log("INSIDE CATCH>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             console.log(e);
             dispatch(errorUser(e, data))
         })

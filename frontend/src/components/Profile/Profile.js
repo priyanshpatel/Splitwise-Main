@@ -27,6 +27,7 @@ class Profile extends Component {
             imageUpdateFlag: false,
             image: null,
             updateFlag: false,
+            emailUpdateFlag: true,
             Msg: ""
         };
         this.ChangeHandler = this.ChangeHandler.bind(this);
@@ -177,7 +178,10 @@ class Profile extends Component {
                 })
                 let updateProfileActionData = {
                     response: e,
-                    status: false
+                    status: false,
+                    updateFlag: false,
+                    emailUpdateFlag: false,
+                    Msg: "Error while updating profile"
                 }
                 this.props.updateProfile(updateProfileActionData)
             })
@@ -232,6 +236,7 @@ class Profile extends Component {
 
                                     <div class="row">
                                         {this.state.updateFlag ? <div class="alert alert-success" role="alert">{this.state.Msg}</div> : null}
+                                        {this.state.emailUpdateFlag ? null : <div class="alert alert-danger" role="alert">{this.state.Msg}</div>}
                                     </div>
 
                                     {/* <br /> */}

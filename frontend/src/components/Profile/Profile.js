@@ -142,7 +142,8 @@ class Profile extends Component {
                     this.setState({
                         authFlag: true,
                         updateFlag: true,
-                        Msg: "Profile successfully updated"
+                        Msg: "Profile successfully updated",
+                        emailUpdateFlag: true
                     })
                     let redux_response = {
                         userEmail: this.state.userEmail,

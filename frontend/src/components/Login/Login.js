@@ -92,6 +92,7 @@ export class Login extends Component {
         if (cookie.load('userId')) {
             redirectVar = <Redirect to='/dashboard' />
         }
+        console.log("Login props>>>>>>>>>>>>>>>>>>>>>>", this.props)
         if (this.props.error) {
             renderError = <div class="alert alert-danger" role="alert">{this.props.message}</div>
         }

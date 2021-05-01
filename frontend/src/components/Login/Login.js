@@ -20,8 +20,8 @@ export class Login extends Component {
             MsgFlag: false,
             Msg: ""
         }
-        this.emailChangeHandler = this.emailChangeHandler.bind(this);
-        this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
+        // this.emailChangeHandler = this.emailChangeHandler.bind(this);
+        // this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
         // this.submitLogin = this.submitLogin.bind(this);
     }
     componentWillMount() {

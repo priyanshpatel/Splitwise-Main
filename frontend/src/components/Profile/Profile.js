@@ -170,6 +170,12 @@ class Profile extends Component {
                     //window.location.assign('/profile/' + cookie.load('userID'))
                     //this.props.history.push("/dashboard")
                     // window.location.reload()
+                } else if (response.status === 201) {
+                    this.setState({
+                        emailUpdateFlag: false,
+                        Msg: response.data,
+                        authFlag: false,
+                    })
                 }
             }).catch(e => {
                 console.log(e);
@@ -181,7 +187,6 @@ class Profile extends Component {
                     response: e,
                     status: false,
                     updateFlag: false,
-                    emailUpdateFlag: false,
                     Msg: "Error while updating profile"
                 }
                 this.props.updateProfile(updateProfileActionData)

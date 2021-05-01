@@ -243,7 +243,6 @@ class Profile extends Component {
 
                                     <div class="row">
                                         {this.state.updateFlag ? <div class="alert alert-success" role="alert">{this.state.Msg}</div> : null}
-                                        {this.state.emailUpdateFlag ? null : <div class="alert alert-danger" role="alert">{this.state.Msg}</div>}
                                     </div>
 
                                     {/* <br /> */}

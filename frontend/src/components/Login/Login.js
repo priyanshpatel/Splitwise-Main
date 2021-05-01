@@ -131,14 +131,14 @@ export class Login extends Component {
 }
 // export default Login;
 
-// const matchStateToProps = (state) => {
-//     console.log("inside matchStatetoProps", state)
-//     return {
-//         error: state.loginReducer.error,
-//         message: state.loginReducer.message
-//     }
+const matchStateToProps = (state) => {
+    console.log("inside matchStatetoProps", state)
+    return {
+        error: state.loginReducer.error,
+        message: state.loginReducer.message
+    }
 
-// }
+}
 
 const matchDispatchToProps = (dispatch) => {
     return {
@@ -146,5 +146,4 @@ const matchDispatchToProps = (dispatch) => {
     }
 }
 
-// export default connect(matchStateToProps, matchDispatchToProps)(Login)
-export default connect(matchDispatchToProps)(Login)
+export default connect(matchStateToProps, matchDispatchToProps)(Login)

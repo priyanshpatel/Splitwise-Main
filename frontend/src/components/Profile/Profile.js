@@ -131,6 +131,7 @@ class Profile extends Component {
             )
         })
             .then(response => {
+                console.log("UPDATE PROFILE RESPONSE >>>>>>>>>>>>>>", response)
                 this.setState({
                     authFlag: true,
                     updateFlag: true,

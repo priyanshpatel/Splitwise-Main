@@ -22,7 +22,7 @@ export class Login extends Component {
         }
         this.emailChangeHandler = this.emailChangeHandler.bind(this);
         this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
-        this.submitLogin = this.submitLogin.bind(this);
+        // this.submitLogin = this.submitLogin.bind(this);
     }
     componentWillMount() {
         this.setState({
